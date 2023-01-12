@@ -1,0 +1,45 @@
+{
+  "name": "First Strategy",
+  "indicators": [
+    {
+      "name": "EMA_10",
+      "configuration": {
+        "type": "EMA",
+        "periods": 10
+      }
+    },
+    {
+      "name": "EMA_20",
+      "configuration": {
+        "type": "EMA",
+        "periods": 20
+      }
+    }
+  ],
+  "signals": [
+    {
+      "action": "BUY",
+      "operation": {
+        "type": "AND",
+        "values": [
+          {
+            "type": "GT",
+            "values": ["IND::EMA_10", "IND::EMA_20"]
+          }
+        ]
+      }
+    },
+    {
+      "action": "SELL",
+      "operation": {
+        "type": "AND",
+        "values": [
+          {
+            "type": "GT",
+            "values": ["IND::EMA_20", "IND::EMA_10"]
+          }
+        ]
+      }
+    }
+  ]
+}
