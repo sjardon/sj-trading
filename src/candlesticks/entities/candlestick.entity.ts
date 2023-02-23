@@ -1,4 +1,18 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { IndicatorEntity } from 'src/indicators/entities/indicator.entity';
+import {
+  AfterInsert,
+  AfterRecover,
+  AfterUpdate,
+  BaseEntity,
+  BeforeInsert,
+  BeforeRecover,
+  BeforeUpdate,
+  Column,
+  Entity,
+  Index,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 export type InputCandlestickEntity = {
   symbol?: string;
@@ -12,6 +26,7 @@ export type InputCandlestickEntity = {
 };
 
 @Entity('candlestick')
+@Index(['symbol', 'openTime', 'closeTime'], { unique: true })
 export class CandlestickEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
@@ -19,16 +34,16 @@ export class CandlestickEntity extends BaseEntity {
   @Column()
   symbol: string;
 
-  @Column()
+  @Column('numeric')
   open: number;
 
-  @Column()
+  @Column('numeric')
   close: number;
 
-  @Column()
+  @Column('numeric')
   high: number;
 
-  @Column()
+  @Column('numeric')
   low: number;
 
   @Column()
@@ -37,23 +52,11 @@ export class CandlestickEntity extends BaseEntity {
   @Column()
   closeTime: number;
 
-  @Column()
+  @Column('numeric')
   volume: number;
 
-  constructor(inputCandlestickEntity: InputCandlestickEntity = {}) {
-    super();
-    const { symbol, open, close, high, low, openTime, closeTime, volume } =
-      inputCandlestickEntity;
-
-    this.symbol = symbol || '';
-    this.open = +(open || 0);
-    this.close = +(close || 0);
-    this.high = +(high || 0);
-    this.low = +(low || 0);
-    this.openTime = openTime || 0;
-    this.closeTime = closeTime || 0;
-    this.volume = +(volume || 0);
-  }
+  @OneToMany(() => IndicatorEntity, (indicator) => indicator.candlestick)
+  indicators: IndicatorEntity[];
 
   change = () => {
     return Math.abs(this.close - this.open);
@@ -78,4 +81,19 @@ export class CandlestickEntity extends BaseEntity {
 
     return false;
   };
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  timeToSeconds() {
+    this.openTime = +this.openTime / 1000;
+    this.closeTime = +this.closeTime / 1000;
+  }
+
+  @AfterRecover()
+  @AfterInsert()
+  @AfterUpdate()
+  timeToMilliseconds() {
+    this.openTime = +this.openTime * 1000;
+    this.closeTime = +this.closeTime * 1000;
+  }
 }

@@ -9,8 +9,7 @@ import {
 import {
   CreateIndicatorExecutorConfigurationDto,
   CreateIndicatorExecutorDto,
-} from '../indicators/dto/create-indicator-executor.dto';
-import { IndicatorExecutorInterface } from '../indicators/indicators-set/indicator-executor.interface';
+} from '../../indicators/dto/create-indicator-executor.dto';
 import { CreateSignalDto } from '../signals/dto/create-signal.dto';
 import { SignalEntity } from '../signals/entities/signal.entity';
 
@@ -19,7 +18,6 @@ type InputStrategyEntity = {
   signals: CreateSignalDto[];
   // signals: SignalEntity[],
   indicators: CreateIndicatorExecutorDto[];
-  // indicators: IndicatorExecutorInterface[],
 };
 
 @Entity('strategy')
@@ -36,7 +34,6 @@ export class StrategyEntity {
 
   @Column('jsonb')
   indicators: CreateIndicatorExecutorDto[];
-  // indicators: IndicatorExecutorInterface[];
 
   @Column('numeric')
   takeProfit: number;

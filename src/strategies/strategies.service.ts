@@ -4,8 +4,6 @@ import { Repository } from 'typeorm';
 import { CreateStrategyDto } from './dto/create-strategy.dto';
 import { UpdateStrategyDto } from './dto/update-strategy.dto';
 import { StrategyEntity } from './entities/strategy.entity';
-import { IndicatorsExecutorsFactory } from './indicators/indicators.factory';
-import { SignalsFactory } from './signals/signals.factory';
 
 @Injectable()
 export class StrategiesService {

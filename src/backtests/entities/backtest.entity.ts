@@ -19,9 +19,6 @@ export class BacktestEntity extends BaseEntity {
   @Column()
   name: string;
 
-  @Column()
-  startAmount: number;
-
   @ManyToOne(() => StrategyEntity)
   strategy: StrategyEntity; // Or strategy: { id }
 

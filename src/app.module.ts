@@ -16,6 +16,9 @@ import { BacktestEntity } from './backtests/entities/backtest.entity';
 import { AnalyzersModule } from './analyzers/analyzers.module';
 import { BacktestOrderEntity } from './backtests/backtest-orders/entities/backtest-order.entity';
 import { BacktestOperationEntity } from './backtests/backtest-operations/entities/backtest-operation.entity';
+import { IndicatorsModule } from './indicators/indicators.module';
+import { IndicatorEntity } from './indicators/entities/indicator.entity';
+import { CandlestickEntity } from './candlesticks/entities/candlestick.entity';
 
 @Module({
   imports: [
@@ -26,12 +29,15 @@ import { BacktestOperationEntity } from './backtests/backtest-operations/entitie
       username: 'admin',
       password: 'admin',
       database: 'trading',
-      entities: [
-        StrategyEntity,
-        BacktestEntity,
-        BacktestOrderEntity,
-        BacktestOperationEntity,
-      ],
+      // entities: [
+      //   CandlestickEntity,
+      //   IndicatorEntity,
+      //   StrategyEntity,
+      //   BacktestEntity,
+      //   BacktestOrderEntity,
+      //   BacktestOperationEntity,
+      // ],
+      autoLoadEntities: true,
       synchronize: true,
     }),
 
@@ -39,11 +45,12 @@ import { BacktestOperationEntity } from './backtests/backtest-operations/entitie
     TradingSessionsModule,
     AccountsModule,
     OperationsModule,
-    CandlesticksModule,
     BacktestsModule,
     AdaptersModule,
     StrategiesModule,
     AnalyzersModule,
+    CandlesticksModule,
+    IndicatorsModule,
   ],
   controllers: [AppController],
   providers: [AppService, AnalyzersService],

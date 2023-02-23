@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
 import { IsString, ValidateNested } from 'class-validator';
-import { CreateIndicatorExecutorDto } from '../indicators/dto/create-indicator-executor.dto';
+import { CreateIndicatorExecutorDto } from '../../indicators/dto/create-indicator-executor.dto';
 import { CreateSignalDto } from '../signals/dto/create-signal.dto';
 
 export class CreateStrategyDto {

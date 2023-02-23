@@ -1,5 +1,5 @@
-import { CandlestickCollection } from '../../../../candlesticks/candlestick.collection';
-import { CandlestickEntity } from '../../../../candlesticks/entities/candlestick.entity';
+import { CandlestickCollection } from '../../../candlesticks/candlestick.collection';
+import { CandlestickEntity } from '../../../candlesticks/entities/candlestick.entity';
 
 import {
   IndicatorEntity,
@@ -37,6 +37,10 @@ export class SmaExecutor implements IndicatorExecutorInterface {
 
     const value = SMA(values, this.lookback);
 
+    // return new IndicatorEntity({
+    //   name: this.name,
+    //   value,
+    // });
     return new IndicatorEntity({
       name: this.name,
       value,

@@ -2,10 +2,20 @@ import { Injectable } from '@nestjs/common';
 import { ExchangeClient } from '../adapters/exchange/exchange.client';
 import { CandlestickEntity } from './entities/candlestick.entity';
 import { InputGetCandlestick } from './candlestick.interface';
+import { InjectRepository } from '@nestjs/typeorm';
+import { InsertResult, Repository } from 'typeorm';
+import { IndicatorEntity } from '../indicators/entities/indicator.entity';
+import { IndicatorsService } from '../indicators/indicators.service';
 
 @Injectable()
 export class CandlesticksService {
-  constructor(private exchangeClient: ExchangeClient) {}
+  constructor(
+    private exchangeClient: ExchangeClient,
+
+    private indicatorsService: IndicatorsService,
+    @InjectRepository(CandlestickEntity)
+    private candlesticksRepository: Repository<CandlestickEntity>,
+  ) {}
 
   get = async ({
     symbol,
@@ -97,8 +107,9 @@ export class CandlesticksService {
           endTime,
         };
 
-        const newCandlesticks =
-          await this.exchangeClient.futuresGetCandlesticks(candlesticksQuery);
+        const newCandlesticks = this.candlesticksRepository.create(
+          await this.exchangeClient.futuresGetCandlesticks(candlesticksQuery),
+        );
 
         candles = candles.concat(newCandlesticks);
 
@@ -111,5 +122,75 @@ export class CandlesticksService {
     } catch (thrownError) {
       throw thrownError;
     }
+  }
+
+  async create(
+    candlesticks: CandlestickEntity | CandlestickEntity[],
+  ): Promise<CandlestickEntity[]> {
+    try {
+      if (!Array.isArray(candlesticks)) {
+        candlesticks = [candlesticks];
+      }
+
+      for (let i = 0; i < candlesticks.length; i++) {
+        const { symbol, openTime, closeTime } = candlesticks[i];
+
+        let candlestick = await this.candlesticksRepository.findOneBy({
+          symbol,
+          openTime: openTime / 1000,
+          closeTime: closeTime / 1000,
+        });
+
+        if (!candlestick) {
+          candlestick = await this.candlesticksRepository.create(
+            candlesticks[i],
+          );
+
+          candlestick = await this.candlesticksRepository.save(candlestick);
+        }
+
+        const { indicators } = candlesticks[i];
+
+        candlesticks[i] = this.candlesticksRepository.create({
+          ...candlestick,
+          indicators,
+        });
+
+        if (candlesticks[i].indicators) {
+          candlesticks[i].indicators = await this.createIndicators(
+            candlesticks[i],
+          );
+        }
+      }
+
+      return candlesticks;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  private async createIndicators(
+    candlestick: CandlestickEntity,
+  ): Promise<IndicatorEntity[]> {
+    let { indicators } = candlestick;
+
+    indicators = indicators.map((indicator) => {
+      indicator.candlestick = candlestick;
+      return indicator;
+    });
+
+    return await this.indicatorsService.create(indicators);
+  }
+
+  async retrieve(candlestick: CandlestickEntity) {
+    const { symbol, openTime, closeTime } = candlestick;
+
+    return await this.candlesticksRepository.findOne({
+      where: {
+        symbol,
+        openTime,
+        closeTime,
+      },
+    });
   }
 }

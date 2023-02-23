@@ -18,6 +18,8 @@ import * as ccxt from 'ccxt';
 
 import { Subject } from 'rxjs';
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class ExchangeClient implements ExchangeInterface {
@@ -25,6 +27,8 @@ export class ExchangeClient implements ExchangeInterface {
   private futuresExchange = new ccxt.binance({
     options: { defaultType: 'future' },
   });
+
+  constructor() {}
 
   async getCandlesticks({
     symbol,
@@ -44,7 +48,7 @@ export class ExchangeClient implements ExchangeInterface {
       return candlesticks.map((candlestick) => {
         const [timestamp, open, high, low, close, volume] = candlestick;
 
-        return new CandlestickEntity({
+        return {
           symbol,
           open: +open,
           close: +close,
@@ -53,7 +57,7 @@ export class ExchangeClient implements ExchangeInterface {
           openTime: timestamp,
           closeTime: timestamp,
           volume: +volume,
-        });
+        } as CandlestickEntity;
       });
     } catch (thrownError) {
       throw new Error('Exchange get candlesticks error');
@@ -120,7 +124,7 @@ export class ExchangeClient implements ExchangeInterface {
       return candlesticks.map((candlestick) => {
         const [timestamp, open, high, low, close, volume] = candlestick;
 
-        return new CandlestickEntity({
+        return {
           symbol,
           open: +open,
           close: +close,
@@ -129,7 +133,7 @@ export class ExchangeClient implements ExchangeInterface {
           openTime: timestamp,
           closeTime: timestamp,
           volume: +volume,
-        });
+        } as CandlestickEntity;
       });
     } catch (thrownError) {
       throw new Error('Exchange get futures candlesticks error');

@@ -2,7 +2,7 @@ import { BadRequest } from 'ccxt';
 import { BacktestOperationEntity } from 'src/backtests/backtest-operations/entities/backtest-operation.entity';
 import { BacktestOrderEntity } from 'src/backtests/backtest-orders/entities/backtest-order.entity';
 import { CandlestickEntity } from 'src/candlesticks/entities/candlestick.entity';
-import { IndicatorEntity } from 'src/strategies/indicators/entities/indicator.entity';
+import { IndicatorEntity } from '../../indicators/entities/indicator.entity';
 import { PrimitiveOperation } from 'src/strategies/signals/operations/primitive.operation';
 import { ReferenceOperation } from 'src/strategies/signals/operations/reference.operation';
 
@@ -93,7 +93,7 @@ export class ReferenceVisitor {
       .map((indicator) => {
         try {
           return indicator.getValueByName(indicatorName);
-        } catch {
+        } catch (error) {
           return false;
         }
       })

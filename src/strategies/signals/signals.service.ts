@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { IndicatorEntity } from '../indicators/entities/indicator.entity';
+import { IndicatorEntity } from '../../indicators/entities/indicator.entity';
 import { SignalEntity } from './entities/signal.entity';
 
 @Injectable()

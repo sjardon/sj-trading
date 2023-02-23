@@ -21,7 +21,6 @@ export class AnalyzersService {
     signals: SignalEntity[],
     operation?: BacktestOperationEntity,
   ): SignalAction {
-    // console.log(signals.length, order);
     const searchedSignalsActions = this.getSearchedSignalsActions(operation);
 
     const signalsToExecute = signals.filter((signal) =>

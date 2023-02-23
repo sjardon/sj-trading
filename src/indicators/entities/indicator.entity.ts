@@ -1,4 +1,16 @@
-import { Column, PrimaryGeneratedColumn } from 'typeorm';
+import { CandlestickEntity } from 'src/candlesticks/entities/candlestick.entity';
+import {
+  AfterInsert,
+  AfterRecover,
+  AfterUpdate,
+  BaseEntity,
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 type IndicatorEntityValue = number | string | number[] | string[];
 
@@ -9,21 +21,29 @@ export type InputIndicatorEntity = {
   parent?: IndicatorEntity;
 };
 
-export class IndicatorEntity {
+@Entity('indicator')
+export class IndicatorEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
   @Column()
   name: string;
 
-  @Column('jsonb')
+  @Column('jsonb', {
+    nullable: true,
+  })
   children?: IndicatorEntity[];
 
+  @Column('varchar')
   value?: IndicatorEntityValue;
-  // parent?: IndicatorEntity; // For typeorm compability
+
+  @ManyToOne(() => CandlestickEntity, (candlestick) => candlestick.indicators, {
+    cascade: true,
+  })
+  candlestick: CandlestickEntity;
 
   constructor(inputIndicatorEntity: InputIndicatorEntity) {
-    // super();
+    super();
     const {
       name,
       value,
@@ -79,5 +99,18 @@ export class IndicatorEntity {
     }
 
     return searchedIndicator;
+  }
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  async encodeValue() {
+    this.value = JSON.stringify(this.value);
+  }
+
+  @AfterRecover()
+  @AfterInsert()
+  @AfterUpdate()
+  decodeValue() {
+    this.value = JSON.parse(this.value as string);
   }
 }
