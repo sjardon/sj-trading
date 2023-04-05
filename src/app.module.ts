@@ -25,7 +25,7 @@ import { CandlestickEntity } from './candlesticks/entities/candlestick.entity';
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
-      port: 5432,
+      port: 5433,
       username: 'admin',
       password: 'admin',
       database: 'trading',

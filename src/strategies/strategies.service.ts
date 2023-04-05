@@ -12,15 +12,15 @@ export class StrategiesService {
     private strategiesRepository: Repository<StrategyEntity>,
   ) {}
 
-  create(createStrategyDto: CreateStrategyDto) {
+  async create(createStrategyDto: CreateStrategyDto) {
     try {
       const strategy = this.strategiesRepository.create(createStrategyDto);
-      this.strategiesRepository.save(strategy);
+      await this.strategiesRepository.save(strategy);
+
+      return strategy;
     } catch (thrownError) {
       throw thrownError;
     }
-
-    return createStrategyDto;
 
     // const signalFactory = new SignalsFactory();
     // const indicatorFactory = new IndicatorsExecutorsFactory();

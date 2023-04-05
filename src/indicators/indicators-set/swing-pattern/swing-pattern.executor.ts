@@ -1,5 +1,6 @@
 // Check different swing patterns (review this name) as an example: pulback, in_resistence, in_support, up_trend, down_trend, consolidation, in_channel, etc.
 // The indicator structure could be something like:
+//
 // {
 //     name: "swingPattern",
 //     children: [

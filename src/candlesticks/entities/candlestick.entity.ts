@@ -55,6 +55,10 @@ export class CandlestickEntity extends BaseEntity {
   @Column('numeric')
   volume: number;
 
+  //TODO: Add enum
+  @Column()
+  interval: string;
+
   @OneToMany(() => IndicatorEntity, (indicator) => indicator.candlestick)
   indicators: IndicatorEntity[];
 

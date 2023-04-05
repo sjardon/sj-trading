@@ -28,8 +28,6 @@ export class ExchangeClient implements ExchangeInterface {
     options: { defaultType: 'future' },
   });
 
-  constructor() {}
-
   async getCandlesticks({
     symbol,
     interval,
@@ -57,6 +55,7 @@ export class ExchangeClient implements ExchangeInterface {
           openTime: timestamp,
           closeTime: timestamp,
           volume: +volume,
+          interval,
         } as CandlestickEntity;
       });
     } catch (thrownError) {
@@ -133,6 +132,7 @@ export class ExchangeClient implements ExchangeInterface {
           openTime: timestamp,
           closeTime: timestamp,
           volume: +volume,
+          interval,
         } as CandlestickEntity;
       });
     } catch (thrownError) {

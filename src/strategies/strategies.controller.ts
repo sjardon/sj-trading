@@ -16,8 +16,8 @@ export class StrategiesController {
   constructor(private readonly strategiesService: StrategiesService) {}
 
   @Post()
-  create(@Body() createStrategyDto: CreateStrategyDto) {
-    return this.strategiesService.create(createStrategyDto);
+  async create(@Body() createStrategyDto: CreateStrategyDto) {
+    return await this.strategiesService.create(createStrategyDto);
   }
 
   @Get()
