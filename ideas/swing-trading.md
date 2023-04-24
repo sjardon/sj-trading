@@ -20,6 +20,13 @@ Algunos consejos útiles:
 3. Se puede considerar un buen punto de entrada cuando un soporte es testeado pero no se rompe. Podemos comprobarlo con una vela de reversión que aparece en ese soporte.
 4. Además de los soportes testeados por el precio, podemos tomar a las SMA de 200 y 20 como señales de soporte.
 
+## Estrategia: Buscar reversión
+
+1. close > SMA 200
+2. close \* 1.005 > algún soporte || close \* 0.995 < algún soporte
+3. Se cumple alguna de los siguientes patrones de velas: Engulfing, Estrella del amanecer, Martillo, Hombre colgado.
+4. TP: resistencia más cercana. SL: resistencia más cercana \* 0.5
+
 # Aportes de Chatbot
 
 ## Me podrías explicar cuales son las cosas fundamentales a tener en cuenta para un swing trading exitoso?

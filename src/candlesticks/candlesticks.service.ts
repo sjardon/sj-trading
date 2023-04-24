@@ -3,16 +3,12 @@ import { ExchangeClient } from '../adapters/exchange/exchange.client';
 import { CandlestickEntity } from './entities/candlestick.entity';
 import { InputGetCandlestick } from './candlestick.interface';
 import { InjectRepository } from '@nestjs/typeorm';
-import { InsertResult, Repository } from 'typeorm';
-import { IndicatorEntity } from '../indicators/entities/indicator.entity';
-import { IndicatorsService } from '../indicators/indicators.service';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class CandlesticksService {
   constructor(
     private exchangeClient: ExchangeClient,
-
-    private indicatorsService: IndicatorsService,
     @InjectRepository(CandlestickEntity)
     private candlesticksRepository: Repository<CandlestickEntity>,
   ) {}
@@ -142,44 +138,17 @@ export class CandlesticksService {
         });
 
         if (!candlestick) {
-          candlestick = await this.candlesticksRepository.create(
-            candlesticks[i],
-          );
-
+          candlestick = this.candlesticksRepository.create(candlesticks[i]);
           candlestick = await this.candlesticksRepository.save(candlestick);
         }
 
-        const { indicators } = candlesticks[i];
-
-        candlesticks[i] = this.candlesticksRepository.create({
-          ...candlestick,
-          indicators,
-        });
-
-        if (candlesticks[i].indicators) {
-          candlesticks[i].indicators = await this.createIndicators(
-            candlesticks[i],
-          );
-        }
+        candlesticks[i] = candlestick;
       }
 
       return candlesticks;
     } catch (error) {
       throw error;
     }
-  }
-
-  private async createIndicators(
-    candlestick: CandlestickEntity,
-  ): Promise<IndicatorEntity[]> {
-    let { indicators } = candlestick;
-
-    indicators = indicators.map((indicator) => {
-      indicator.candlestick = candlestick;
-      return indicator;
-    });
-
-    return await this.indicatorsService.create(indicators);
   }
 
   async retrieve(candlestick: CandlestickEntity) {

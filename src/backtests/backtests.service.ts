@@ -21,6 +21,7 @@ import { BacktestOperationsService } from './backtest-operations/backtest-operat
 import { CandlestickEntity } from 'src/candlesticks/entities/candlestick.entity';
 import { IndicatorExecutorInterface } from 'src/indicators/indicators-set/indicator-executor.interface';
 import { IndicatorEntity } from 'src/indicators/entities/indicator.entity';
+import { BacktestTimeframesService } from './backtest-timeframe/backtest-timeframes.service';
 
 export type InputGetCandlestickSample = {
   symbol: CandlestickSymbolType;
@@ -41,6 +42,7 @@ export class BacktestsService {
 
   constructor(
     private candlesticksService: CandlesticksService,
+    private timeframeService: BacktestTimeframesService,
     private strategiesService: StrategiesService,
     private analyzersService: AnalyzersService,
     private backtestOperationsService: BacktestOperationsService,
@@ -54,7 +56,8 @@ export class BacktestsService {
     try {
       await this.initProcess(createBacktestDto);
       await this.startProcess();
-      return await this.finishProcess();
+      await this.finishProcess();
+      return this.backtest;
     } catch (thrownError) {
       this.finishFailedProcess(thrownError);
       throw thrownError;
@@ -124,7 +127,13 @@ export class BacktestsService {
         indicatorExecutor.exec(currentCandlesticks),
       );
 
-      this.candlesticksSamples[i].indicators = indicators;
+      // TODO: Save timeframes in an event.
+
+      this.timeframeService.create({
+        backtest: this.backtest,
+        candlestick: this.candlesticksSamples[i],
+        indicators,
+      });
 
       await this.startProcessCurrentCandlesticks(
         currentCandlesticks,
@@ -172,18 +181,17 @@ export class BacktestsService {
 
       this.logger.log(`Operation done: ${this.operation.id}`);
     } catch (error) {
+      console.log(error);
       this.logger.log(`Error startProcessCurrentCandlesticks`);
     }
   }
 
   async finishProcess() {
-    const savedCandlesticks = await this.saveCandlestickSample();
+    // const savedCandlesticks = await this.saveCandlestickSample();
 
     this.logger.log(
       `Backtest ${this.backtest.name} - ${this.backtest.id} ended`,
     );
-
-    return this.backtest;
   }
 
   finishFailedProcess(thrownError: any) {
@@ -215,11 +223,11 @@ export class BacktestsService {
     });
   }
 
-  protected async saveCandlestickSample() {
-    this.candlesticksSamples = await this.candlesticksService.create(
-      this.candlesticksSamples,
-    );
+  // protected async saveCandlestickSample() {
+  //   this.candlesticksSamples = await this.candlesticksService.create(
+  //     this.candlesticksSamples,
+  //   );
 
-    return this.candlesticksSamples;
-  }
+  //   return this.candlesticksSamples;
+  // }
 }

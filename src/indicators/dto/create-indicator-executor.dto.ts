@@ -4,6 +4,10 @@ import { IsEnum, IsString, ValidateNested } from 'class-validator';
 export enum IndicatorExecutorType {
   SMA = 'SMA',
   EMA = 'EMA',
+  SUPPORT_RESISTANCE = 'SUPPORT_RESISTANCE',
+  CURRENT_SUPPORT_RESISTANCE = 'CURRENT_SUPPORT_RESISTANCE',
+  CONSOLIDATION = 'CONSOLIDATION',
+  CANDLESTICK_PATTERNS = 'CANDLESTICK_PATTERNS',
 }
 
 export class CreateIndicatorExecutorConfigurationDto {

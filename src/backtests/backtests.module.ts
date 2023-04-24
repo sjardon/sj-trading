@@ -8,17 +8,27 @@ import { BacktestEntity } from './entities/backtest.entity';
 import { BacktestOrdersModule } from './backtest-orders/backtest-orders.module';
 import { AnalyzersModule } from 'src/analyzers/analyzers.module';
 import { BacktestOperationsModule } from './backtest-operations/backtest-operations.module';
+import { BacktestCandlestickService } from './services/backtest-candlestick.service';
+import { BacktestCandlestickView } from './entities/backtest-candlestick.entity';
+import { BacktestProfitView } from './entities/backtest-profit.entity';
+import { BacktestTimeframesModule } from './backtest-timeframe/backtest-timeframes.module';
 
 @Module({
-  providers: [BacktestsService],
+  providers: [BacktestsService, BacktestCandlestickService],
   imports: [
-    TypeOrmModule.forFeature([BacktestEntity]),
+    TypeOrmModule.forFeature([
+      BacktestEntity,
+      BacktestProfitView,
+      BacktestCandlestickView,
+    ]),
     CandlesticksModule,
     StrategiesModule,
     AnalyzersModule,
     BacktestOrdersModule,
     BacktestOperationsModule,
+    BacktestTimeframesModule,
   ],
   controllers: [BacktestsController],
+  exports: [BacktestCandlestickService],
 })
 export class BacktestsModule {}

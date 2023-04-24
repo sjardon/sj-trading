@@ -1,0 +1,280 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>App</title>
+    <!-- <script
+      src="https://cdn.plot.ly/plotly-2.20.0.min.js"
+      charset="utf-8"
+    ></script> -->
+    <script src="/plotly-2.20.0.min.js"></script>
+    <script>
+      function plotCandlesticksChart(data) {
+        const {
+          candlesticks,
+          openOrders,
+          closeOrders,
+          SMA_20,
+          SMA_200,
+          SMA_VOL_5,
+          PREV_LEVEL_1,
+          PREV_LEVEL_2,
+          NEXT_LEVEL_1,
+          NEXT_LEVEL_2,
+          CURRENT_LEVEL,
+        } = data;
+
+        const { time, open, close, high, low, volume } = candlesticks;
+
+        let sma20Trace = {
+          x: SMA_20.time,
+          y: SMA_20.values,
+          type: 'scatter',
+        };
+
+        let sma200Trace = {
+          x: SMA_200.time,
+          y: SMA_200.values,
+          type: 'scatter',
+        };
+
+        let smaVol5Trace = {
+          x: SMA_VOL_5.time,
+          y: SMA_VOL_5.values,
+          type: 'scatter',
+          yaxis: 'y2',
+        };
+
+        let prevLevel1 = {
+          x: PREV_LEVEL_1.time,
+          y: PREV_LEVEL_1.values,
+          type: 'scatter',
+          mode: 'markers',
+          marker: {
+            color: '#00c1db',
+            symbol: 'circle',
+            size: 4,
+          },
+        };
+
+        let prevLevel2 = {
+          x: PREV_LEVEL_2.time,
+          y: PREV_LEVEL_2.values,
+          type: 'scatter',
+          mode: 'markers',
+          marker: {
+            color: '#0094aa',
+            symbol: 'circle',
+            size: 5,
+          },
+        };
+
+        let nextLevel1 = {
+          x: NEXT_LEVEL_1.time,
+          y: NEXT_LEVEL_1.values,
+          type: 'scatter',
+          mode: 'markers',
+          marker: {
+            color: '#00c1db',
+            symbol: 'circle',
+            size: 4,
+          },
+        };
+
+        let nextLevel2 = {
+          x: NEXT_LEVEL_2.time,
+          y: NEXT_LEVEL_2.values,
+          type: 'scatter',
+          mode: 'markers',
+          marker: {
+            color: '#0094aa',
+            symbol: 'circle',
+            size: 5,
+          },
+        };
+
+        let currentLevel = {
+          x: CURRENT_LEVEL.time,
+          y: CURRENT_LEVEL.values,
+          type: 'scatter',
+          mode: 'markers',
+          marker: {
+            color: 'green',
+            symbol: 'circle',
+            size: 4,
+          },
+        };
+
+        let openOrdersTrace = {
+          x: openOrders.time,
+          y: openOrders.values,
+          type: 'scatter',
+          mode: 'markers',
+          marker: {
+            symbol: 'triangle-up',
+            color: '#2352d3',
+            size: 15,
+          },
+          showlegend: false,
+        };
+
+        let closeOrdersTrace = {
+          x: closeOrders.time,
+          y: closeOrders.values,
+          type: 'scatter',
+          mode: 'markers',
+          marker: {
+            symbol: 'triangle-down',
+            color: '#edd521',
+            size: 15,
+          },
+          showlegend: false,
+        };
+
+        let candlesicksTrace = {
+          x: time,
+          open,
+          close,
+          high,
+          low,
+          decreasing: { line: { color: '#EF5350' } },
+          increasing: { line: { color: '#40A69A' } },
+          line: { color: 'rgba(31,119,180,1)' },
+          type: 'candlestick',
+          xaxis: 'x',
+          yaxis: 'y',
+        };
+
+        const volumeTrace = {
+          type: 'bar',
+          x: time,
+          y: volume,
+          line: { color: 'rgba(31,119,180,1)' },
+          xaxis: 'x',
+          yaxis: 'y2',
+        };
+
+        var layout = {
+          dragmode: 'zoom',
+          plot_bgcolor: '#c6c6c6',
+          // paper_bgcolor: '#FFF3',
+          margin: { r: 10, t: 25, b: 40, l: 60 },
+          showlegend: false,
+          xaxis: {
+            autorange: true,
+            domain: [0, 1],
+            range: ['2023-03-29T10:00:00.000Z', '2023-03-30T06:00:00.000Z'],
+            rangeslider: {
+              // range: ['2023-01-29T10:00:00.000Z', '2023-03-30T06:00:00.000Z'],
+              visible: false,
+            },
+            title: 'Date',
+            type: 'date',
+          },
+          yaxis: {
+            autorange: true,
+            domain: [0, 1],
+            type: 'linear',
+            range: [Math.min(...open), Math.max(...open)],
+          },
+          yaxis2: {
+            visible: true,
+            showgrid: false,
+            title: 'Volume',
+            range: [0, Math.max(...volume) * 4],
+            type: 'linear',
+            overlaying: 'y',
+            side: 'right',
+          },
+        };
+        const config = {
+          scrollZoom: true,
+        };
+        const graph = Plotly.newPlot(
+          'graph',
+          [
+            candlesicksTrace,
+            volumeTrace,
+            openOrdersTrace,
+            closeOrdersTrace,
+            sma20Trace,
+            sma200Trace,
+            smaVol5Trace,
+            prevLevel1,
+            prevLevel2,
+            nextLevel1,
+            nextLevel2,
+            currentLevel,
+          ],
+          layout,
+          config,
+        );
+
+        console.log(graph);
+      }
+    </script>
+
+    <style type="text/css">
+      .tg {
+        border-collapse: collapse;
+        border-spacing: 0;
+      }
+      .tg td {
+        border-color: black;
+        border-style: solid;
+        border-width: 1px;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        overflow: hidden;
+        padding: 10px 5px;
+        word-break: normal;
+      }
+      .tg th {
+        border-color: black;
+        border-style: solid;
+        border-width: 1px;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        font-weight: normal;
+        overflow: hidden;
+        padding: 10px 5px;
+        word-break: normal;
+      }
+      .tg .tg-0lax {
+        text-align: left;
+        vertical-align: top;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <h2>Statistics:</h2>
+      <table class="tg">
+        <tr>
+          <td class="tg-0lax">Total Rate</td>
+          <td class="tg-0lax"><%- statistics.totalRate %></td>
+        </tr>
+        <tr>
+          <td class="tg-0lax">Profiteable Count</td>
+          <td class="tg-0lax"><%- statistics.profiteableCount %></td>
+        </tr>
+        <tr>
+          <td class="tg-0lax">Unprofiteable Count</td>
+          <td class="tg-0lax"><%- statistics.unprofiteableCount %></td>
+        </tr>
+        <tr>
+          <td class="tg-0lax">Profiteable AVG</td>
+          <td class="tg-0lax"><%- statistics.profiteableAvg %></td>
+        </tr>
+        <tr>
+          <td class="tg-0lax">Unprofiteable AVG</td>
+          <td class="tg-0lax"><%- statistics.unprofiteableAvg %></td>
+        </tr>
+      </table>
+    </div>
+    <div id="graph" style="height: 800px"></div>
+  </body>
+  <script>
+    const dataToPlot = <%- JSON.stringify(dataToPlot) %>;
+    plotCandlesticksChart(dataToPlot)
+  </script>
+</html>

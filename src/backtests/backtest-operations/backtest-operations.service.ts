@@ -148,4 +148,23 @@ export class BacktestOperationsService {
       throw Error('Operation is not long');
     }
   }
+
+  async getAllByBacktest(backtestId: string) {
+    return await this.backtestOperationsRepository.find({
+      relations: {
+        openOrder: true,
+        closeOrder: true,
+      },
+      where: {
+        backtest: {
+          id: backtestId,
+        },
+      },
+      order: {
+        openOrder: {
+          transactTime: 'ASC',
+        },
+      },
+    });
+  }
 }

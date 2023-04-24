@@ -19,6 +19,9 @@ import { BacktestOperationEntity } from './backtests/backtest-operations/entitie
 import { IndicatorsModule } from './indicators/indicators.module';
 import { IndicatorEntity } from './indicators/entities/indicator.entity';
 import { CandlestickEntity } from './candlesticks/entities/candlestick.entity';
+import { StatisticsModule } from './statistics/statistics.module';
+import { BacktestCandlestickView } from './backtests/entities/backtest-candlestick.entity';
+import { BacktestProfitView } from './backtests/entities/backtest-profit.entity';
 
 @Module({
   imports: [
@@ -29,7 +32,7 @@ import { CandlestickEntity } from './candlesticks/entities/candlestick.entity';
       username: 'admin',
       password: 'admin',
       database: 'trading',
-      // entities: [
+      // entities: [BacktestCandlestickView, BacktestProfitView],
       //   CandlestickEntity,
       //   IndicatorEntity,
       //   StrategyEntity,
@@ -51,6 +54,7 @@ import { CandlestickEntity } from './candlesticks/entities/candlestick.entity';
     AnalyzersModule,
     CandlesticksModule,
     IndicatorsModule,
+    StatisticsModule,
   ],
   controllers: [AppController],
   providers: [AppService, AnalyzersService],

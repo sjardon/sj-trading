@@ -1,4 +1,4 @@
-import { CandlestickEntity } from 'src/candlesticks/entities/candlestick.entity';
+import { BacktestTimeframeEntity } from 'src/backtests/backtest-timeframe/entities/backtest-timeframe.entity';
 import {
   AfterInsert,
   AfterRecover,
@@ -12,7 +12,13 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-type IndicatorEntityValue = number | string | number[] | string[];
+type IndicatorEntityValue =
+  | number
+  | string
+  | boolean
+  | number[]
+  | string[]
+  | boolean[];
 
 export type InputIndicatorEntity = {
   name: string;
@@ -37,10 +43,8 @@ export class IndicatorEntity extends BaseEntity {
   @Column('varchar')
   value?: IndicatorEntityValue;
 
-  @ManyToOne(() => CandlestickEntity, (candlestick) => candlestick.indicators, {
-    cascade: true,
-  })
-  candlestick: CandlestickEntity;
+  @ManyToOne(() => BacktestTimeframeEntity, { nullable: true, cascade: true })
+  backtestTimeframe?: BacktestTimeframeEntity;
 
   constructor(inputIndicatorEntity: InputIndicatorEntity) {
     super();
@@ -65,7 +69,12 @@ export class IndicatorEntity extends BaseEntity {
 
     if (Array.isArray(this.children)) {
       for (const indicator of this.children) {
-        searchedIndicator = indicator.getValueByName(name);
+        try {
+          searchedIndicator = indicator.getValueByName(name);
+          break;
+        } catch {
+          continue;
+        }
       }
     }
 

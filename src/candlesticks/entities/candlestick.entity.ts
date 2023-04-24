@@ -10,7 +10,6 @@ import {
   Column,
   Entity,
   Index,
-  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -58,9 +57,6 @@ export class CandlestickEntity extends BaseEntity {
   //TODO: Add enum
   @Column()
   interval: string;
-
-  @OneToMany(() => IndicatorEntity, (indicator) => indicator.candlestick)
-  indicators: IndicatorEntity[];
 
   change = () => {
     return Math.abs(this.close - this.open);

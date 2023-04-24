@@ -1,11 +1,8 @@
-// import { BacktestEntity } from '../backtests/entities/backtest.entity';
-import { BacktestEntity } from '../../entities/backtest.entity';
 import {
   BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
-  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';

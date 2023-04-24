@@ -15,7 +15,10 @@ export class ReferenceOperation implements OperationInterface<string, T> {
   resolve(): T {
     try {
       if (this.referenceVisitor) {
-        return this.referenceVisitor.getByReferenceOperation(this);
+        const referencedValue =
+          this.referenceVisitor.getByReferenceOperation(this);
+
+        return referencedValue;
       }
 
       throw new InternalServerErrorException(

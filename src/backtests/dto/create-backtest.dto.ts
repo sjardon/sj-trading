@@ -1,5 +1,4 @@
-import { Transform, Type } from 'class-transformer';
-import { IsDate, IsEnum, IsNumber, IsString, IsUUID } from 'class-validator';
+import { Type } from 'class-transformer';
 import { CandlestickIntervalType } from '../../candlesticks/intervals/candlestick-interval.type';
 import { CandlestickSymbolType } from '../../candlesticks/symbols/candlestick-symbol.type';
 
