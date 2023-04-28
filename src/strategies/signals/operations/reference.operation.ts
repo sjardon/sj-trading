@@ -1,12 +1,14 @@
 import { InternalServerErrorException } from '@nestjs/common';
-import { ReferenceVisitor } from 'src/utils/visitors/reference.visitor';
+// import { ReferenceContextVisitor } from 'src/utils/visitors/reference.visitor';
+
 import { OperationInterface } from './operation.interface';
+import { ReferenceContext } from 'src/utils/visitors/reference-contex.visitor';
 
 type T = OperationInterface<unknown, number | boolean | string>;
 
 export class ReferenceOperation implements OperationInterface<string, T> {
   values: string;
-  referenceVisitor: ReferenceVisitor;
+  referenceContextVisitor: ReferenceContext;
 
   constructor(values: string) {
     this.values = values;
@@ -14,22 +16,23 @@ export class ReferenceOperation implements OperationInterface<string, T> {
 
   resolve(): T {
     try {
-      if (this.referenceVisitor) {
-        const referencedValue =
-          this.referenceVisitor.getByReferenceOperation(this);
+      if (this.referenceContextVisitor) {
+        const referencedValue = this.referenceContextVisitor
+          .getCurrentReference()
+          .getByReferenceOperation(this);
 
         return referencedValue;
       }
 
       throw new InternalServerErrorException(
-        'ReferenceVisitor has not been loaded',
+        'ReferenceContextVisitor has not been loaded',
       );
     } catch (thrownError) {
       throw thrownError;
     }
   }
 
-  setReferenceVisitor(referenceVisitor: ReferenceVisitor) {
-    this.referenceVisitor = referenceVisitor;
+  setReferenceContextVisitor(referenceContextVisitor: ReferenceContext) {
+    this.referenceContextVisitor = referenceContextVisitor;
   }
 }

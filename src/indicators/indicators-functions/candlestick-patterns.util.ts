@@ -49,6 +49,71 @@ export function isMorningStar(candlesticks: CandlestickEntity[]): boolean {
   );
 }
 
+export function isMorningStarDoji(candlesticks: CandlestickEntity[]): boolean {
+  checkLengthOrTrhowError(candlesticks, 3);
+
+  const current = candlesticks[candlesticks.length - 1];
+  const prev = candlesticks[candlesticks.length - 2];
+  const prev_2 = candlesticks[candlesticks.length - 3];
+
+  return (
+    prev_2.close < prev_2.open &&
+    Math.abs(prev_2.close - prev_2.open) / (prev_2.high - prev_2.low) >= 0.7 &&
+    Math.abs(prev.close - prev.open) / (prev.high - prev.low) < 0.1 &&
+    current.close > current.open &&
+    Math.abs(current.close - current.open) / (current.high - current.low) >=
+      0.7 &&
+    prev_2.close > prev.close &&
+    prev_2.close > prev.open &&
+    prev.close < current.open &&
+    prev.open < current.open &&
+    current.close > prev_2.close &&
+    prev.high - Math.max(prev.close, prev.open) >
+      3 * Math.abs(prev.close - prev.open) &&
+    Math.min(prev.close, prev.open) - prev.low >
+      3 * Math.abs(prev.close - prev.open)
+  );
+}
+
+export function isEveningStarDoji(candlesticks: CandlestickEntity[]): boolean {
+  checkLengthOrTrhowError(candlesticks, 3);
+
+  const current = candlesticks[candlesticks.length - 1];
+  const prev = candlesticks[candlesticks.length - 2];
+  const prev_2 = candlesticks[candlesticks.length - 3];
+
+  return (
+    prev_2.close > prev_2.open &&
+    Math.abs(prev_2.close - prev_2.open) / (prev_2.high - prev_2.low) >= 0.7 &&
+    Math.abs(prev.close - prev.open) / (prev.high - prev.low) < 0.1 &&
+    current.close < current.open &&
+    Math.abs(current.close - current.open) / (current.high - current.low) <
+      0.7 &&
+    prev_2.close < prev.close &&
+    prev_2.close < prev.open &&
+    prev.close > current.open &&
+    prev.open > current.open &&
+    current.close < prev_2.close &&
+    prev.high - Math.max(prev.close, prev.open) >
+      3 * Math.abs(prev.close - prev.open) &&
+    Math.min(prev.close, prev.open) - prev.low >
+      3 * Math.abs(prev.close - prev.open)
+  );
+
+  // (b_prev_close < b_prev_open and
+  //   abs(b_prev_close - b_prev_open) / (b_prev_high - b_prev_low) >= 0.7 and
+  //   abs(prev_close - prev_open) / (prev_high - prev_low) < 0.1 and
+  //   close > open and
+  //   abs(close - open) / (high - low) >= 0.7 and
+  //   b_prev_close > prev_close and
+  //   b_prev_close > prev_open and
+  //   prev_close < open and
+  //   prev_open < open and
+  //   close > b_prev_close
+  //   and (prev_high - max(prev_close, prev_open)) > (3 * abs(prev_close - prev_open))
+  //   and (min(prev_close, prev_open) - prev_low) > (3 * abs(prev_close - prev_open)))
+}
+
 export function isEveningStar(candlesticks: CandlestickEntity[]): boolean {
   checkLengthOrTrhowError(candlesticks, 3);
 

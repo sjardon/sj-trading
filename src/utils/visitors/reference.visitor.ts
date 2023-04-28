@@ -5,8 +5,10 @@ import { CandlestickEntity } from 'src/candlesticks/entities/candlestick.entity'
 import { IndicatorEntity } from '../../indicators/entities/indicator.entity';
 import { PrimitiveOperation } from 'src/strategies/signals/operations/primitive.operation';
 import { ReferenceOperation } from 'src/strategies/signals/operations/reference.operation';
+import { BacktestTimeframeEntity } from 'src/backtests/backtest-timeframe/entities/backtest-timeframe.entity';
 
 export type InputReferenceVisitorUpdate = {
+  timeframes: BacktestTimeframeEntity[];
   candlesticks: CandlestickEntity[];
   indicators: IndicatorEntity[];
   // TODO: Change for abstract or base order
@@ -16,6 +18,7 @@ export type InputReferenceVisitorUpdate = {
 };
 
 export class ReferenceVisitor {
+  timeframes: BacktestTimeframeEntity[];
   candlesticks: CandlestickEntity[];
   indicators: IndicatorEntity[];
   order: BacktestOrderEntity;
@@ -24,9 +27,34 @@ export class ReferenceVisitor {
     stopLoss: number;
   };
 
+  constructor(inputReferenceVisitorUpdate: InputReferenceVisitorUpdate) {
+    const {
+      timeframes,
+      candlesticks,
+      indicators,
+      operation,
+      takeProfit,
+      stopLoss,
+    } = inputReferenceVisitorUpdate;
+
+    this.timeframes = timeframes;
+    this.candlesticks = candlesticks;
+    this.indicators = indicators;
+    this.order = operation?.openOrder;
+    this.targets = { takeProfit, stopLoss };
+  }
+
   update(inputReferenceVisitorUpdate: InputReferenceVisitorUpdate) {
-    const { candlesticks, indicators, operation, takeProfit, stopLoss } =
-      inputReferenceVisitorUpdate;
+    const {
+      timeframes,
+      candlesticks,
+      indicators,
+      operation,
+      takeProfit,
+      stopLoss,
+    } = inputReferenceVisitorUpdate;
+
+    this.timeframes = timeframes;
     this.candlesticks = candlesticks;
     this.indicators = indicators;
     this.order = operation?.openOrder;

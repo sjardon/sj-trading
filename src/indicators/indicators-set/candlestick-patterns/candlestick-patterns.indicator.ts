@@ -6,6 +6,8 @@ import {
   isHammer,
   isInvertedHammer,
   isHangingMan,
+  isEveningStarDoji,
+  isMorningStarDoji,
 } from 'src/indicators/indicators-functions/candlestick-patterns.util';
 import { CandlestickEntity } from '../../../candlesticks/entities/candlestick.entity';
 import { IndicatorEntity } from '../../entities/indicator.entity';
@@ -15,7 +17,9 @@ const candlestickPatterns = {
   ENGULFING_BULLISH: isEngulfingBullish,
   ENGULFING_BEARISH: isEngulfingBearish,
   MORNING_STAR: isMorningStar,
+  MORNING_STAR_DOJI: isMorningStarDoji,
   EVENING_STAR: isEveningStar,
+  EVENING_STAR_DOJI: isEveningStarDoji,
   HAMMER: isHammer,
   INVERTED_HAMMER: isInvertedHammer,
   HANGING_MAN: isHangingMan,
@@ -64,8 +68,16 @@ export class CandlestickPatternsExecutor implements IndicatorExecutorInterface {
           value: this.findPattern(candlesticks, 'MORNING_STAR'),
         }),
         new IndicatorEntity({
+          name: 'MORNING_STAR_DOJI',
+          value: this.findPattern(candlesticks, 'MORNING_STAR_DOJI'),
+        }),
+        new IndicatorEntity({
           name: 'EVENING_STAR',
           value: this.findPattern(candlesticks, 'EVENING_STAR'),
+        }),
+        new IndicatorEntity({
+          name: 'EVENING_STAR_DOJI',
+          value: this.findPattern(candlesticks, 'EVENING_STAR_DOJI'),
         }),
         new IndicatorEntity({
           name: 'HAMMER',

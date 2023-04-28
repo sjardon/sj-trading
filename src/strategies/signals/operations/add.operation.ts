@@ -10,8 +10,9 @@ export class AddOperation implements OperationInterface<T[], number> {
   }
 
   resolve(): number {
-    return this.values.reduce((accumulator, currentValue) => {
-      return accumulator + currentValue.resolve();
+    const result = this.values.reduce((accumulator, currentValue) => {
+      return accumulator + +currentValue.resolve();
     }, 0);
+    return result;
   }
 }

@@ -19,7 +19,8 @@ import { OperationInterface } from './operation.interface';
 import { PrimitiveOperation } from './primitive.operation';
 import { plainToInstance } from 'class-transformer';
 import { ReferenceOperation } from './reference.operation';
-import { ReferenceVisitor } from 'src/utils/visitors/reference.visitor';
+import { ReferenceContext } from 'src/utils/visitors/reference-contex.visitor';
+import { TestBackOperation } from './test-back.operation';
 
 export class OperationsFactory {
   private operationsMap = {
@@ -37,12 +38,13 @@ export class OperationsFactory {
     MLP: (operation) => new MultiplicationOperation(operation.values),
     REF: (operation) => new ReferenceOperation(operation.values),
     PRIM: (operation) => new PrimitiveOperation(operation.values),
+    TEST_BACK: (operation) => new TestBackOperation(operation.values),
   };
 
   // create(createOperationDto: CreateOperationDto): OperationInterface {
   create(
     createOperationDto: boolean | string | number | CreateOperationDto,
-    referenceVisitor: ReferenceVisitor,
+    referenceContextVisitor: ReferenceContext,
   ): OperationInterface<unknown, unknown> {
     if (this.isPrimitive(createOperationDto)) {
       const type: CreateOperationType =
@@ -53,25 +55,34 @@ export class OperationsFactory {
       });
 
       if (createOperation instanceof ReferenceOperation) {
-        createOperation.setReferenceVisitor(referenceVisitor);
+        createOperation.setReferenceContextVisitor(referenceContextVisitor);
       }
 
       return createOperation;
     }
 
     if (typeof createOperationDto == 'object') {
-      return this.mapObject(createOperationDto, referenceVisitor);
+      const mappedObject = this.mapObject(
+        createOperationDto,
+        referenceContextVisitor,
+      );
+
+      if (mappedObject instanceof TestBackOperation) {
+        mappedObject.setReferenceContextVisitor(referenceContextVisitor);
+      }
+
+      return mappedObject;
     }
   }
 
   mapObject(
     createOperationDto: CreateOperationDto,
-    referenceVisitor: ReferenceVisitor,
+    referenceContextVisitor: ReferenceContext,
   ) {
     let mappedValues = [];
 
     mappedValues = createOperationDto.values.map((value) =>
-      this.create(value, referenceVisitor),
+      this.create(value, referenceContextVisitor),
     );
 
     if (!this.operationsMap[createOperationDto.type]) {

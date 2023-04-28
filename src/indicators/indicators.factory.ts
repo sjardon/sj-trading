@@ -6,6 +6,8 @@ import { SupportResistanceExecutor } from './indicators-set/support-resistance/s
 import { CurrentSupportResistanceExecutor } from './indicators-set/current-support-resistance/current-support-resistance.executor';
 import { CandlestickPatternsExecutor } from './indicators-set/candlestick-patterns/candlestick-patterns.indicator';
 import { ConsolidationExecutor } from './indicators-set/consolidation/consolidation.executor';
+import { SwingClassificationExecutor } from './indicators-set/swing-classification/swing-classification.indicator';
+import { AtrExecutor } from './indicators-set/atr/atr.executor';
 
 export class IndicatorsExecutorsFactory {
   private indicatorExecutorsMap = {
@@ -25,6 +27,12 @@ export class IndicatorsExecutorsFactory {
 
     CANDLESTICK_PATTERNS: (name, configuration): IndicatorExecutorInterface =>
       new CandlestickPatternsExecutor(name, configuration),
+
+    SWING_CLASSIFICATION: (name, configuration): IndicatorExecutorInterface =>
+      new SwingClassificationExecutor(name, configuration),
+
+    ATR: (name, configuration): IndicatorExecutorInterface =>
+      new AtrExecutor(name, configuration),
   };
 
   create(

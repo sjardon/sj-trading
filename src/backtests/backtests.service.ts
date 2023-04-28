@@ -22,6 +22,8 @@ import { CandlestickEntity } from 'src/candlesticks/entities/candlestick.entity'
 import { IndicatorExecutorInterface } from 'src/indicators/indicators-set/indicator-executor.interface';
 import { IndicatorEntity } from 'src/indicators/entities/indicator.entity';
 import { BacktestTimeframesService } from './backtest-timeframe/backtest-timeframes.service';
+import { StatisticsService } from 'src/statistics/statistics.service';
+import { ReferenceContext } from 'src/utils/visitors/reference-contex.visitor';
 
 export type InputGetCandlestickSample = {
   symbol: CandlestickSymbolType;
@@ -35,7 +37,7 @@ export class BacktestsService {
   private readonly logger = new Logger(BacktestsService.name);
   protected operation: BacktestOperationEntity | undefined;
   protected candlesticksSamples: CandlestickEntity[];
-  protected referenceVisitor: ReferenceVisitor = new ReferenceVisitor();
+  protected referenceContextVisitor: ReferenceContext = new ReferenceContext();
   protected indicatorExecturos: IndicatorExecutorInterface[];
   protected signals: SignalEntity[];
   protected backtest: BacktestEntity;
@@ -46,6 +48,7 @@ export class BacktestsService {
     private strategiesService: StrategiesService,
     private analyzersService: AnalyzersService,
     private backtestOperationsService: BacktestOperationsService,
+    private statisticsService: StatisticsService,
     @InjectRepository(BacktestEntity)
     private backtestsRepository: Repository<BacktestEntity>,
   ) {}
@@ -90,7 +93,7 @@ export class BacktestsService {
     const signalsFactory = new SignalsFactory();
     this.signals = signalsFactory.create(
       strategy.signals,
-      this.referenceVisitor,
+      this.referenceContextVisitor,
     );
 
     const indicatorsExecutorsFactory = new IndicatorsExecutorsFactory();
@@ -147,13 +150,16 @@ export class BacktestsService {
     indicators: IndicatorEntity[],
   ) {
     try {
-      this.referenceVisitor.update({
-        candlesticks: currentCandlesticks,
-        indicators,
-        operation: this.operation,
-        takeProfit: this.backtest.strategy.takeProfit,
-        stopLoss: this.backtest.strategy.stopLoss,
-      });
+      this.referenceContextVisitor.addReference(
+        new ReferenceVisitor({
+          timeframes: [],
+          candlesticks: currentCandlesticks,
+          indicators,
+          operation: this.operation,
+          takeProfit: this.backtest.strategy.takeProfit,
+          stopLoss: this.backtest.strategy.stopLoss,
+        }),
+      );
 
       const actionToPerform: SignalAction = this.analyzersService.analyze(
         this.signals,
@@ -181,13 +187,19 @@ export class BacktestsService {
 
       this.logger.log(`Operation done: ${this.operation.id}`);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       this.logger.log(`Error startProcessCurrentCandlesticks`);
     }
   }
 
   async finishProcess() {
-    // const savedCandlesticks = await this.saveCandlestickSample();
+    const backtestOperations =
+      await this.backtestOperationsService.getAllByBacktest(this.backtest.id);
+
+    await this.statisticsService.generateFromOperations(
+      this.backtest,
+      backtestOperations,
+    );
 
     this.logger.log(
       `Backtest ${this.backtest.name} - ${this.backtest.id} ended`,
@@ -222,12 +234,4 @@ export class BacktestsService {
       lookback: 1000,
     });
   }
-
-  // protected async saveCandlestickSample() {
-  //   this.candlesticksSamples = await this.candlesticksService.create(
-  //     this.candlesticksSamples,
-  //   );
-
-  //   return this.candlesticksSamples;
-  // }
 }

@@ -4,24 +4,25 @@ import { SignalEntity } from './entities/signal.entity';
 import { OperationInterface } from './operations/operation.interface';
 
 import { OperationsFactory } from './operations/operations.factory';
+import { ReferenceContext } from 'src/utils/visitors/reference-contex.visitor';
 
 export class SignalsFactory {
   create(
     createSignalsDto: CreateSignalDto[],
-    referenceVisitor: ReferenceVisitor,
+    referenceContextVisitor: ReferenceContext,
   ): SignalEntity[] {
     return createSignalsDto.map((signalDto) =>
-      this.createOne(signalDto, referenceVisitor),
+      this.createOne(signalDto, referenceContextVisitor),
     );
   }
 
   createOne(
     createSignalDto: CreateSignalDto,
-    referenceVisitor: ReferenceVisitor,
+    referenceContextVisitor: ReferenceContext,
   ): SignalEntity {
     const mappedOperation = new OperationsFactory().create(
       createSignalDto.operation,
-      referenceVisitor,
+      referenceContextVisitor,
     ) as OperationInterface<unknown, boolean>;
 
     return new SignalEntity({

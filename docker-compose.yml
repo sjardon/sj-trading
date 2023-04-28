@@ -11,24 +11,18 @@ services:
   #   networks:
   #     - superset
 
-  db:
-    env_file: .env
+  trading_db:
     image: postgres:14
     container_name: trading_db
+    env_file: docker/.env-trading
     restart: unless-stopped
     ports:
       - 5433:5432
     volumes:
       - db:/var/lib/postgresql/data
-    networks:
-      - trading
 
 volumes:
   db:
     external: false
   # redis:
   #   external: false
-
-networks:
-  trading:
-    name: shared-trading

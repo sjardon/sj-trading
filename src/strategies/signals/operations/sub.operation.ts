@@ -10,8 +10,8 @@ export class SubOperation implements OperationInterface<T[], number> {
   }
 
   resolve(): number {
-    return this.values.reduce((accumulator, currentValue) => {
-      return currentValue.resolve() - accumulator;
-    }, 0);
+    const [val1, val2] = this.values;
+    const result = val1.resolve() - val2.resolve();
+    return result;
   }
 }

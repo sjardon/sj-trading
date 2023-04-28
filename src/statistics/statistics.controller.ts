@@ -5,12 +5,12 @@ import { BacktestOperationsService } from 'src/backtests/backtest-operations/bac
 import { BacktestTimeframesService } from 'src/backtests/backtest-timeframe/backtest-timeframes.service';
 import { IndicatorEntity } from 'src/indicators/entities/indicator.entity';
 import { BacktestOperationEntity } from 'src/backtests/backtest-operations/entities/backtest-operation.entity';
+import { BacktestEntity } from 'src/backtests/entities/backtest.entity';
 
 @Controller('statistics')
 export class StatisticsController {
   constructor(
     private readonly statisticsService: StatisticsService,
-    private readonly backtestCandlestickService: BacktestCandlestickService,
     private readonly backtestOperationsService: BacktestOperationsService,
     private readonly backtestTimeframesService: BacktestTimeframesService,
   ) {}
@@ -20,8 +20,20 @@ export class StatisticsController {
   async root(@Param() params: any) {
     const { backtestId } = params;
 
+    let statistics = await this.statisticsService.getByBacktest({ backtestId });
+
     let backtestOperations =
       await this.backtestOperationsService.getAllByBacktest(backtestId);
+
+    if (!statistics && backtestOperations.length > 0) {
+      const generatedStatistics =
+        await this.statisticsService.generateFromOperations(
+          { id: backtestId } as BacktestEntity,
+          backtestOperations,
+        );
+
+      statistics = generatedStatistics[0];
+    }
 
     backtestOperations = backtestOperations.filter(
       (operation) => operation['openOrder'] && operation['closeOrder'],
@@ -44,14 +56,12 @@ export class StatisticsController {
       new Date(+timeframe.candlestick.closeTime * 1000).toISOString(),
     );
 
+    const longOperations = backtestOperations.filter((op) => op.isLong());
+    const shortOperations = backtestOperations.filter((op) => op.isShort());
+    const operations = backtestOperations.filter((op) => op.isBoth());
+
     return {
-      statistics: {
-        totalRate: this.getTotalRate(backtestOperations),
-        profiteableCount: this.getProfiteableCount(backtestOperations),
-        unprofiteableCount: this.getUnprofiteableCount(backtestOperations),
-        profiteableAvg: this.getProfiteableAvg(backtestOperations),
-        unprofiteableAvg: this.getUnprofiteableAvg(backtestOperations),
-      },
+      statistics,
       dataToPlot: {
         candlesticks: {
           time,
@@ -62,16 +72,40 @@ export class StatisticsController {
           volume: timeframes.map((timeframe) => timeframe.candlestick.volume),
         },
         openOrders: {
-          time: backtestOperations.map((op) =>
+          time: operations.map((op) =>
             new Date(+op.openOrder.transactTime).toISOString(),
           ),
-          values: backtestOperations.map((op) => op.openOrder.executedQty),
+          values: operations.map((op) => op.openOrder.executedQty),
         },
         closeOrders: {
-          time: backtestOperations.map((op) =>
+          time: operations.map((op) =>
             new Date(+op.closeOrder.transactTime).toISOString(),
           ),
-          values: backtestOperations.map((op) => op.closeOrder.executedQty),
+          values: operations.map((op) => op.closeOrder.executedQty),
+        },
+        openLongOrders: {
+          time: longOperations.map((op) =>
+            new Date(+op.openOrder.transactTime).toISOString(),
+          ),
+          values: longOperations.map((op) => op.openOrder.executedQty),
+        },
+        closeLongOrders: {
+          time: longOperations.map((op) =>
+            new Date(+op.closeOrder.transactTime).toISOString(),
+          ),
+          values: longOperations.map((op) => op.closeOrder.executedQty),
+        },
+        openShortOrders: {
+          time: shortOperations.map((op) =>
+            new Date(+op.openOrder.transactTime).toISOString(),
+          ),
+          values: shortOperations.map((op) => op.openOrder.executedQty),
+        },
+        closeShortOrders: {
+          time: shortOperations.map((op) =>
+            new Date(+op.closeOrder.transactTime).toISOString(),
+          ),
+          values: shortOperations.map((op) => op.closeOrder.executedQty),
         },
         SMA_20: {
           time,
@@ -123,62 +157,5 @@ export class StatisticsController {
         },
       },
     };
-  }
-
-  getTotalRate(backtestOperations: BacktestOperationEntity[]): number {
-    return backtestOperations.reduce((accumulator, currentOperation) => {
-      return (
-        accumulator *
-        (currentOperation.closeOrder.executedQty /
-          currentOperation.openOrder.executedQty)
-      );
-    }, 1);
-  }
-
-  getProfiteableCount(backtestOperations: BacktestOperationEntity[]): number {
-    return backtestOperations.filter(
-      (operation) =>
-        operation.closeOrder.executedQty > operation.openOrder.executedQty,
-    ).length;
-  }
-
-  getUnprofiteableCount(backtestOperations: BacktestOperationEntity[]): number {
-    return backtestOperations.filter(
-      (operation) =>
-        operation.closeOrder.executedQty < operation.openOrder.executedQty,
-    ).length;
-  }
-
-  getProfiteableAvg(backtestOperations: BacktestOperationEntity[]): number {
-    const profiteableOperations = backtestOperations.filter(
-      (operation) =>
-        operation.closeOrder.executedQty > operation.openOrder.executedQty,
-    );
-
-    return (
-      profiteableOperations.reduce((accumulator, currentOperation) => {
-        return (
-          accumulator +
-          currentOperation.closeOrder.executedQty /
-            currentOperation.openOrder.executedQty
-        );
-      }, 0) / profiteableOperations.length
-    );
-  }
-
-  getUnprofiteableAvg(backtestOperations: BacktestOperationEntity[]): number {
-    const unprofiteableOperations = backtestOperations.filter(
-      (operation) =>
-        operation.closeOrder.executedQty < operation.openOrder.executedQty,
-    );
-    return (
-      unprofiteableOperations.reduce((accumulator, currentOperation) => {
-        return (
-          accumulator +
-          currentOperation.closeOrder.executedQty /
-            currentOperation.openOrder.executedQty
-        );
-      }, 0) / unprofiteableOperations.length
-    );
   }
 }

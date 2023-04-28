@@ -22,6 +22,7 @@ export enum CreateOperationType {
   MLP = 'MLP',
   PRIM = 'PRIM',
   REF = 'REF',
+  TEST_BACK = 'TEST_BACK',
 }
 
 export class CreateOperationDto {

@@ -44,8 +44,30 @@ export class BacktestOperationsService {
     );
 
     if (SignalAction.BUY == actionToPerform) {
+      lastBacktestOperation.openOrder = await this.backtestOrdersService.open(
+        inputCreateOrder,
+        candlestick,
+      );
+    }
+
+    if (SignalAction.SELL == actionToPerform) {
+      lastBacktestOperation.closeOrder = await this.backtestOrdersService.close(
+        inputCreateOrder,
+        candlestick,
+      );
+    }
+
+    if (SignalAction.OPEN_LONG == actionToPerform) {
       lastBacktestOperation.openOrder =
         await this.backtestOrdersService.openLong(
+          inputCreateOrder,
+          candlestick,
+        );
+    }
+
+    if (SignalAction.CLOSE_LONG == actionToPerform) {
+      lastBacktestOperation.closeOrder =
+        await this.backtestOrdersService.closeLong(
           inputCreateOrder,
           candlestick,
         );
@@ -54,15 +76,6 @@ export class BacktestOperationsService {
     if (SignalAction.OPEN_SHORT == actionToPerform) {
       lastBacktestOperation.openOrder =
         await this.backtestOrdersService.openShort(
-          inputCreateOrder,
-          candlestick,
-        );
-    }
-
-    // if (SignalAction.CLOSE_LONG == actionToPerform) {
-    if (SignalAction.SELL == actionToPerform) {
-      lastBacktestOperation.closeOrder =
-        await this.backtestOrdersService.closeLong(
           inputCreateOrder,
           candlestick,
         );

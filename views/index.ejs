@@ -13,6 +13,10 @@
           candlesticks,
           openOrders,
           closeOrders,
+          openLongOrders,
+          closeLongOrders,
+          openShortOrders,
+          closeShortOrders,
           SMA_20,
           SMA_200,
           SMA_VOL_5,
@@ -112,7 +116,7 @@
           marker: {
             symbol: 'triangle-up',
             color: '#2352d3',
-            size: 15,
+            size: 17,
           },
           showlegend: false,
         };
@@ -125,7 +129,59 @@
           marker: {
             symbol: 'triangle-down',
             color: '#edd521',
-            size: 15,
+            size: 17,
+          },
+          showlegend: false,
+        };
+
+        let openLongOrdersTrace = {
+          x: openLongOrders.time,
+          y: openLongOrders.values,
+          type: 'scatter',
+          mode: 'markers',
+          marker: {
+            symbol: 'triangle-up',
+            color: '#2352d3',
+            size: 17,
+          },
+          showlegend: false,
+        };
+
+        let closeLongOrdersTrace = {
+          x: closeLongOrders.time,
+          y: closeLongOrders.values,
+          type: 'scatter',
+          mode: 'markers',
+          marker: {
+            symbol: 'triangle-down',
+            color: '#edd521',
+            size: 17,
+          },
+          showlegend: false,
+        };
+
+        let openShortOrdersTrace = {
+          x: openShortOrders.time,
+          y: openShortOrders.values,
+          type: 'scatter',
+          mode: 'markers',
+          marker: {
+            symbol: 'triangle-down',
+            color: '#2352d3',
+            size: 17,
+          },
+          showlegend: false,
+        };
+
+        let closeShortOrdersTrace = {
+          x: closeShortOrders.time,
+          y: closeShortOrders.values,
+          type: 'scatter',
+          mode: 'markers',
+          marker: {
+            symbol: 'triangle-up',
+            color: '#edd521',
+            size: 17,
           },
           showlegend: false,
         };
@@ -196,6 +252,10 @@
             volumeTrace,
             openOrdersTrace,
             closeOrdersTrace,
+            openLongOrdersTrace,
+            closeLongOrdersTrace,
+            openShortOrdersTrace,
+            closeShortOrdersTrace,
             sma20Trace,
             sma200Trace,
             smaVol5Trace,

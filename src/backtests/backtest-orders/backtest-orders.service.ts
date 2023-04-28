@@ -24,7 +24,7 @@ export class BacktestOrdersService {
     private backtestOrdersRepository: Repository<BacktestOrderEntity>,
   ) {}
 
-  async openLong(
+  async open(
     inputFuturesOpenLongOrder: {
       symbol: CandlestickSymbolType;
       quantity: string;
@@ -36,6 +36,57 @@ export class BacktestOrdersService {
         ...inputFuturesOpenLongOrder,
         side: OrderSide.BUY,
         positionSide: OrderPositionSide.BOTH,
+      },
+      candlestick,
+    );
+  }
+
+  async close(
+    inputFuturesOpenLongOrder: {
+      symbol: CandlestickSymbolType;
+      quantity: string;
+    },
+    candlestick?: CandlestickEntity,
+  ) {
+    return await this.create(
+      {
+        ...inputFuturesOpenLongOrder,
+        side: OrderSide.SELL,
+        positionSide: OrderPositionSide.BOTH,
+      },
+      candlestick,
+    );
+  }
+
+  async openLong(
+    inputFuturesOpenLongOrder: {
+      symbol: CandlestickSymbolType;
+      quantity: string;
+    },
+    candlestick?: CandlestickEntity,
+  ) {
+    return await this.create(
+      {
+        ...inputFuturesOpenLongOrder,
+        side: OrderSide.BUY,
+        positionSide: OrderPositionSide.LONG,
+      },
+      candlestick,
+    );
+  }
+
+  async closeLong(
+    inputFuturesOpenLongOrder: {
+      symbol: CandlestickSymbolType;
+      quantity: string;
+    },
+    candlestick?: CandlestickEntity,
+  ) {
+    return await this.create(
+      {
+        ...inputFuturesOpenLongOrder,
+        side: OrderSide.SELL,
+        positionSide: OrderPositionSide.LONG,
       },
       candlestick,
     );
@@ -53,23 +104,6 @@ export class BacktestOrdersService {
         ...inputFuturesOpenLongOrder,
         side: OrderSide.BUY,
         positionSide: OrderPositionSide.SHORT,
-      },
-      candlestick,
-    );
-  }
-
-  async closeLong(
-    inputFuturesOpenLongOrder: {
-      symbol: CandlestickSymbolType;
-      quantity: string;
-    },
-    candlestick?: CandlestickEntity,
-  ) {
-    return await this.create(
-      {
-        ...inputFuturesOpenLongOrder,
-        side: OrderSide.SELL,
-        positionSide: OrderPositionSide.BOTH,
       },
       candlestick,
     );

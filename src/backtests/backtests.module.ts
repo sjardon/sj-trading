@@ -12,6 +12,7 @@ import { BacktestCandlestickService } from './services/backtest-candlestick.serv
 import { BacktestCandlestickView } from './entities/backtest-candlestick.entity';
 import { BacktestProfitView } from './entities/backtest-profit.entity';
 import { BacktestTimeframesModule } from './backtest-timeframe/backtest-timeframes.module';
+import { StatisticsModule } from 'src/statistics/statistics.module';
 
 @Module({
   providers: [BacktestsService, BacktestCandlestickService],
@@ -27,6 +28,7 @@ import { BacktestTimeframesModule } from './backtest-timeframe/backtest-timefram
     BacktestOrdersModule,
     BacktestOperationsModule,
     BacktestTimeframesModule,
+    StatisticsModule,
   ],
   controllers: [BacktestsController],
   exports: [BacktestCandlestickService],

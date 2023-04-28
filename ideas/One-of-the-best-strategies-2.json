@@ -1,0 +1,142 @@
+{
+  "name": "",
+  "stopLoss": 0.98,
+  "takeProfit": 1.015,
+  "indicators": [
+    { "name": "SMA_5", "configuration": { "type": "SMA", "lookback": 5 } },
+    { "name": "SMA_20", "configuration": { "type": "SMA", "lookback": 20 } },
+    { "name": "SMA_200", "configuration": { "type": "SMA", "lookback": 200 } },
+    {
+      "name": "SMA_VOL_5",
+      "configuration": { "type": "SMA", "target": "volume", "lookback": 5 }
+    },
+    {
+      "name": "CUR_SR",
+      "configuration": {
+        "type": "CURRENT_SUPPORT_RESISTANCE",
+        "spread": 0.005,
+        "lookback": 30
+      }
+    },
+    {
+      "name": "CP",
+      "configuration": {
+        "type": "CANDLESTICK_PATTERNS",
+        "findIn": true,
+        "lookback": 6
+      }
+    },
+    {
+      "name": "CONSOLIDATION",
+      "configuration": {
+        "type": "CONSOLIDATION",
+        "lookback": 20,
+        "threshold": 1.02
+      }
+    },
+    {
+      "name": "SWING_CLASSIFICATION",
+      "configuration": { "type": "SWING_CLASSIFICATION", "lookback": 20 }
+    }
+  ],
+  "signals": [
+    {
+      "action": "BUY",
+      "operation": {
+        "type": "AND",
+        "values": [
+          {
+            "type": "OR",
+            "values": [
+              { "type": "GT", "values": ["CS::close", "IND::SMA_200"] },
+              {
+                "type": "EQ",
+                "values": ["IND::SWING_CLASSIFICATION", "UP_SWING"]
+              }
+            ]
+          },
+          { "type": "GT", "values": ["CS::close", "IND::SMA_20"] },
+          { "type": "EQ", "values": ["IND::CONSOLIDATION", -1] },
+          {
+            "type": "TEST_BACK",
+            "values": [
+              5,
+              {
+                "type": "AND",
+                "values": [
+                  {
+                    "type": "OR",
+                    "values": [
+                      { "type": "GT", "values": ["IND::CURRENT_LEVEL", -1] },
+                      { "type": "GT", "values": ["IND::PREV_LEVEL_1", -1] }
+                    ]
+                  },
+                  { "type": "GT", "values": ["IND::SMA_20", "CS::close"] }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "GT",
+            "values": [
+              "CS::volume",
+              { "type": "MLP", "values": ["IND::SMA_VOL_5", 1.1] }
+            ]
+          },
+          {
+            "type": "OR",
+            "values": [
+              { "type": "EQ", "values": ["IND::ENGULFING_BULLISH", true] },
+              { "type": "EQ", "values": ["IND::MORNING_STAR", true] },
+              { "type": "EQ", "values": ["IND::MORNING_STAR_DOJI", true] },
+              { "type": "EQ", "values": ["IND::HAMMER", true] },
+              { "type": "EQ", "values": ["IND::HANGING_MAN", true] }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "action": "SELL",
+      "operation": {
+        "type": "OR",
+        "values": [
+          {
+            "type": "AND",
+            "values": [
+              {
+                "type": "LT_EQ",
+                "values": [
+                  "CS::close",
+                  {
+                    "type": "MLP",
+                    "values": ["ORD::executedQty", "TRG::stopLoss"]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "AND",
+            "values": [
+              {
+                "type": "GT_EQ",
+                "values": [
+                  "CS::close",
+                  {
+                    "type": "MLP",
+                    "values": ["ORD::executedQty", "TRG::takeProfit"]
+                  }
+                ]
+              },
+              {
+                "type": "EQ",
+                "values": ["IND::SWING_CLASSIFICATION", "DOWN_SWING"]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

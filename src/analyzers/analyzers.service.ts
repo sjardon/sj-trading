@@ -44,23 +44,19 @@ export class AnalyzersService {
     const searchedSignalsActions = [];
 
     if (operation && operation.isOpen() && !operation.isClose()) {
-      // if (operation.isLong()) {
-      //   SignalAction.CLOSE_LONG;
-      // }
-
-      // if (operation.isShort()) {
-      //   SignalAction.CLOSE_SHORT;
-      // }
-
-      if (operation.isBoth()) {
+      if (operation.isLong()) {
+        searchedSignalsActions.push(SignalAction.CLOSE_LONG);
+      } else if (operation.isShort()) {
+        searchedSignalsActions.push(SignalAction.CLOSE_SHORT);
+      } else if (operation.isBoth()) {
         searchedSignalsActions.push(SignalAction.SELL);
       }
     } else {
-      searchedSignalsActions.push(SignalAction.BUY);
-      // searchedSignalsActions.push(
-      //   SignalAction.OPEN_SHORT,
-      //   SignalAction.OPEN_LONG,
-      // );
+      searchedSignalsActions.push(
+        SignalAction.BUY,
+        SignalAction.OPEN_SHORT,
+        SignalAction.OPEN_LONG,
+      );
     }
 
     return searchedSignalsActions;
