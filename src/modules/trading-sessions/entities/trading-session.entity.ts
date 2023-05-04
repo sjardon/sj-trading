@@ -16,6 +16,10 @@ export class TradingSessionEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
+  // Now: user, account and risk management are default values.
+
+  // TODO: set custom user, account and risk management
+
   @Column()
   name: string;
 
