@@ -14,10 +14,10 @@ services:
   trading_db:
     image: postgres:14
     container_name: trading_db
-    env_file: docker/.env-trading
+    env_file: .env
     restart: unless-stopped
     ports:
-      - 5433:5432
+      - 5432:5432
     volumes:
       - db:/var/lib/postgresql/data
 
