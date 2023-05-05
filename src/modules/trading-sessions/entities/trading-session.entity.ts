@@ -10,6 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { StrategyEntity } from '../../strategies/entities/strategy.entity';
+import { ENUM_TRADING_SESSION_STATUS } from '../constants/trading-session-status.enum.constant';
 
 @Entity('tradingSession')
 export class TradingSessionEntity extends BaseEntity {
@@ -31,6 +32,13 @@ export class TradingSessionEntity extends BaseEntity {
 
   @Column()
   interval: CandlestickIntervalType;
+
+  @Column({
+    type: 'enum',
+    enum: ENUM_TRADING_SESSION_STATUS,
+    default: ENUM_TRADING_SESSION_STATUS.CREATED,
+  })
+  status: ENUM_TRADING_SESSION_STATUS;
 
   @Column('timestamp')
   startTime: Date;

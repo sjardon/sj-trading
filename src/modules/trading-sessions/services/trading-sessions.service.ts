@@ -1,26 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { CreateTradingSessionDto } from '../dto/create-trading-session.dto';
 import { UpdateTradingSessionDto } from '../dto/update-trading-session.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { TradingSessionEntity } from '../entities/trading-session.entity';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { CreateTradingSessionCommand } from '../commands/impl/create-trading-session.command';
 
 @Injectable()
 export class TradingSessionsService {
   constructor(
-    @InjectRepository(TradingSessionEntity)
-    private tradingSessionRepository: Repository<TradingSessionEntity>,
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
   ) {}
 
   create(createTradingSessionDto: CreateTradingSessionDto) {
-    // Validate createTradingSessionDto:
-    //    - Strategy exists,
-    //    - Name must not be repeated. If it's add random characters.
-    //    - If name isn't setted, set as symbol-interval-startTime (YYYY-MM-DD hh:mm:ss)
-    //    - Running tradingSession is not above max tradingSession
-    //    - symbol-interval is not running now
-    console.log(createTradingSessionDto);
-    return createTradingSessionDto;
+    return this.commandBus.execute(
+      new CreateTradingSessionCommand(createTradingSessionDto),
+    );
+
+    // raise a start- event
   }
 
   findAll() {

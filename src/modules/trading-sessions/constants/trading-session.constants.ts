@@ -1,0 +1,1 @@
+export const MAX_RUNNING_TRADING_SESSIONS = 1;
