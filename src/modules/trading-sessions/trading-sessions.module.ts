@@ -4,10 +4,15 @@ import { TradingSessionsController } from './controllers/trading-sessions.contro
 import { TradingSessionEntity } from './entities/trading-session.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { StrategiesModule } from '../strategies/strategies.module';
+import { CqrsModule } from '@nestjs/cqrs';
 
 @Module({
   controllers: [TradingSessionsController],
   providers: [TradingSessionsService],
-  imports: [TypeOrmModule.forFeature([TradingSessionEntity]), StrategiesModule],
+  imports: [
+    TypeOrmModule.forFeature([TradingSessionEntity]),
+    StrategiesModule,
+    CqrsModule,
+  ],
 })
 export class TradingSessionsModule {}

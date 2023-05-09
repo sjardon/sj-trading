@@ -3,12 +3,11 @@ import { CreateTradingSessionCommand } from '../impl/create-trading-session.comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { TradingSessionEntity } from '../../entities/trading-session.entity';
 import { Repository, In } from 'typeorm';
-import { StrategiesService } from 'src/modules/strategies/services/strategies.service';
+import { StrategiesService } from '../../../strategies/services/strategies.service';
 import { CreateTradingSessionDto } from '../../dto/create-trading-session.dto';
 import {
   BadRequestException,
   InternalServerErrorException,
-  NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { MAX_RUNNING_TRADING_SESSIONS } from '../../constants/trading-session.constants';
@@ -16,7 +15,7 @@ import { ENUM_TRADING_SESSION_STATUS } from '../../constants/trading-session-sta
 import {
   CandlestickIntervalType,
   CandlestickSymbolType,
-} from 'src/modules/candlesticks/intervals/candlestick-interval.type';
+} from '../../../candlesticks/intervals/candlestick-interval.type';
 
 @CommandHandler(CreateTradingSessionCommand)
 export class CreateTradingSessionHandler
@@ -38,11 +37,6 @@ export class CreateTradingSessionHandler
   }
 
   private async validate(createTradingSessionDto: CreateTradingSessionDto) {
-    // Validate createTradingSessionDto:
-    //    - Strategy exists,
-    //    - Running tradingSession is not greater than max tradingSession
-    //    - symbol-interval is not running now
-
     let { strategyId, symbol, interval } = createTradingSessionDto;
 
     const isValidStrategy = await this.validateStrategy(strategyId);
@@ -58,16 +52,16 @@ export class CreateTradingSessionHandler
       interval,
     );
 
-    if (validSingleTradingSession) {
+    if (!validSingleTradingSession) {
       throw new BadRequestException(
         `There is a trading session running for symbol [${symbol}] - interval [${interval}]`,
       );
     }
 
-    const maxRunningTradingSessionsReached =
-      await this.validateMaxRunningTradingSessions(symbol, interval);
+    const validMaxRunningTradingSessions =
+      await this.validateMaxRunningTradingSessions();
 
-    if (maxRunningTradingSessionsReached) {
+    if (!validMaxRunningTradingSessions) {
       throw new ServiceUnavailableException(
         'Max running trading sessions reached',
       );
@@ -98,10 +92,7 @@ export class CreateTradingSessionHandler
       return false;
     }
   }
-  async validateMaxRunningTradingSessions(
-    symbol: CandlestickSymbolType,
-    interval: CandlestickIntervalType,
-  ) {
+  async validateMaxRunningTradingSessions() {
     try {
       const count = await this.tradingSessionRepository.countBy({
         status: In([
@@ -124,7 +115,11 @@ export class CreateTradingSessionHandler
   async validateStrategy(strategyId: string): Promise<boolean> {
     try {
       const strategy = await this.strategiesService.findOne(strategyId);
-      return true;
+      if (strategy) {
+        return true;
+      }
+
+      return false;
     } catch (error) {
       return false;
     }
