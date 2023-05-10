@@ -115,6 +115,14 @@ We have an humble panel to see the results. You can go here to check it:
 http://localhost:3000/statistics/backtest/{{backtestId}}
 ```
 
+### Next steps for Backtest service
+
+ - Run backtests in scheduled tasks instead.
+ - Use cqrs method.
+ - Refactor of backtests.service.ts in differents command handlers.
+ - Add GET and DELETE methods for strategies and backtests.
+ - Save candlesticks samples in some cache db or files.
+
 ## TradingSession service
 
 WIP
