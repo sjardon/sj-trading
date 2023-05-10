@@ -22,8 +22,7 @@ export class TradingSessionsController {
   @UseGuards(AuthGuard('jwt'))
   @Post()
   create(@Body() createTradingSessionDto: CreateTradingSessionDto) {
-    // return this.tradingSessionsService.create(createTradingSessionDto);
-    return { hi: 'user' };
+    return this.tradingSessionsService.create(createTradingSessionDto);
   }
 
   @Get()

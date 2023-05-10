@@ -1,11 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { CreateTradingSessionDto } from '../dto/create-trading-session.dto';
 import { UpdateTradingSessionDto } from '../dto/update-trading-session.dto';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { CreateTradingSessionCommand } from '../commands/impl/create-trading-session.command';
 
 @Injectable()
 export class TradingSessionsService {
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
+
   create(createTradingSessionDto: CreateTradingSessionDto) {
-    return 'This action adds a new tradingSession';
+    return this.commandBus.execute(
+      new CreateTradingSessionCommand(createTradingSessionDto),
+    );
+
+    // raise a start- event
   }
 
   findAll() {
