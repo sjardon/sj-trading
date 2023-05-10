@@ -29,13 +29,19 @@ AUTH0_ISSUER_URL=
 AUTH0_AUDIENCE=
 ```
 
-3. Install node dependencies:
+3. Run docker:
+
+```bash
+docker-compose up
+```
+
+4. Install node dependencies:
 
 ```bash
 npm install
 ```
 
-4. Finally, start the project:
+5. Finally, start the project:
 
 ```bash
 npm run start
