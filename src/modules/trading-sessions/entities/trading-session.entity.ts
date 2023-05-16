@@ -43,7 +43,7 @@ export class TradingSessionEntity extends BaseEntity {
   @Column('timestamp')
   startTime: Date;
 
-  @Column('timestamp')
+  @Column({ type: 'timestamp', nullable: true })
   endTime: Date;
 
   @CreateDateColumn({ name: 'created_at' })

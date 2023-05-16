@@ -11,7 +11,7 @@ import {
   // InputFuturesCreateOrder,
   InputFuturesGetOpenOrders,
   InputFuturesGetOrder,
-  InputRealTimeCandlesticks,
+  InputWatchCandlesticks,
 } from './exchange.interface';
 
 import * as ccxt from 'ccxt';
@@ -20,9 +20,14 @@ import { Subject } from 'rxjs';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import {
+  CandlestickIntervalType,
+  CandlestickSymbolType,
+} from 'src/modules/candlesticks/intervals/candlestick-interval.type';
 
 @Injectable()
 export class ExchangeClient implements ExchangeInterface {
+  private exchangeWatcher = new ccxt.pro.binance();
   private exchange = new ccxt.binance();
   private futuresExchange = new ccxt.binance({
     options: { defaultType: 'future' },
@@ -63,6 +68,64 @@ export class ExchangeClient implements ExchangeInterface {
     }
   }
 
+  async futuresGetCandlesticks({
+    symbol,
+    interval,
+    lookback,
+    startTime,
+    endTime,
+  }: InputGetCandlestick): Promise<CandlestickEntity[]> {
+    try {
+      const OHCLVs = await this.futuresExchange.fetchOHLCV(
+        symbol,
+        interval,
+        +startTime,
+        lookback,
+      );
+
+      return this.mapToCandlesticks(OHCLVs, symbol, interval);
+    } catch (thrownError) {
+      throw new Error('Exchange get futures candlesticks error');
+    }
+  }
+
+  async futuresWatchCandlesticks({
+    symbol,
+    interval,
+    lookback,
+  }: InputWatchCandlesticks): Promise<CandlestickEntity[]> {
+    const OHCLVs = await this.exchangeWatcher.watchOHLCV(
+      symbol,
+      interval,
+      undefined,
+      lookback,
+    );
+
+    return this.mapToCandlesticks(OHCLVs, symbol, interval);
+  }
+
+  mapToCandlesticks(
+    OHCLVs: ccxt.OHLCV[],
+    symbol: CandlestickSymbolType,
+    interval: CandlestickIntervalType,
+  ) {
+    return OHCLVs.map((OHCLV) => {
+      const [timestamp, open, high, low, close, volume] = OHCLV;
+
+      return {
+        symbol,
+        open: +open,
+        close: +close,
+        high: +high,
+        low: +low,
+        openTime: timestamp,
+        closeTime: timestamp,
+        volume: +volume,
+        interval,
+      } as CandlestickEntity;
+    });
+  }
+
   // realTimeCandlestick({
   //   symbols,
   //   interval,
@@ -101,73 +164,6 @@ export class ExchangeClient implements ExchangeInterface {
   //   //   let { asset, balance } = accountBalance;
   //   //   return new AccountEntity({ asset, balance: +balance });
   //   // });
-
-  //   throw new Error('Not implemented');
-  // }
-
-  async futuresGetCandlesticks({
-    symbol,
-    interval,
-    lookback,
-    startTime,
-    endTime,
-  }: InputGetCandlestick): Promise<CandlestickEntity[]> {
-    try {
-      const candlesticks = await this.futuresExchange.fetchOHLCV(
-        symbol,
-        interval,
-        +startTime,
-        lookback,
-      );
-
-      return candlesticks.map((candlestick) => {
-        const [timestamp, open, high, low, close, volume] = candlestick;
-
-        return {
-          symbol,
-          open: +open,
-          close: +close,
-          high: +high,
-          low: +low,
-          openTime: timestamp,
-          closeTime: timestamp,
-          volume: +volume,
-          interval,
-        } as CandlestickEntity;
-      });
-    } catch (thrownError) {
-      throw new Error('Exchange get futures candlesticks error');
-    }
-  }
-
-  // futuresRealTimeCandlesticks({
-  //   symbols,
-  //   interval,
-  // }: InputRealTimeCandlesticks): Subject<CandlestickEntity> {
-  //   // const subject = new Subject<CandlestickEntity>();
-
-  //   // this.binanceClient.ws.futuresCandles(symbols, interval, (candlestick) => {
-  //   //   // Any
-  //   //   if (candlestick) {
-  //   //     const { symbol, open, close, high, low, startTime, closeTime, volume } =
-  //   //       candlestick;
-
-  //   //     subject.next(
-  //   //       new CandlestickEntity({
-  //   //         symbol,
-  //   //         open: +open,
-  //   //         close: +close,
-  //   //         high: +high,
-  //   //         low: +low,
-  //   //         openTime: startTime,
-  //   //         closeTime,
-  //   //         volume: +volume,
-  //   //       }),
-  //   //     );
-  //   //   }
-  //   // });
-
-  //   // return subject;
 
   //   throw new Error('Not implemented');
   // }

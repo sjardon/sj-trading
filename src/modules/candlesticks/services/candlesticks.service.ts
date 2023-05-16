@@ -1,3 +1,4 @@
+import { InputWatchCandlesticks } from './../../adapters/exchange/exchange.interface';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -13,44 +14,16 @@ export class CandlesticksService {
     private candlesticksRepository: Repository<CandlestickEntity>,
   ) {}
 
-  get = async ({
+  futuresWatch = async ({
     symbol,
     interval,
     lookback,
-    startTime,
-    endTime,
-  }: InputGetCandlestick) => {
-    // if (lookback > 1000) {
-    //   throw new Error('Lookback period is too big');
-    // }
-
-    // // TODO: get candlesticks from redis cache
-
-    // try {
-    //   const candlesticksQuery: InputGetCandlestick = {
-    //     symbol,
-    //     interval,
-    //     lookback,
-    //     startTime,
-    //     endTime,
-    //   };
-
-    //   const candlesticks = await this.exchangeClient.getCandlesticks(
-    //     candlesticksQuery,
-    //   );
-
-    //   if (candlesticks.length > 0) {
-    //     // await this.saveOnFile(
-    //     //   { symbol, interval, startTime, endTime },
-    //     //   candlesticks
-    //     // );
-    //   }
-
-    //   return candlesticks;
-    // } catch (thrownError) {
-    //   throw thrownError;
-    // }
-    throw new Error('Method is not implemented');
+  }: InputWatchCandlesticks) => {
+    return await this.exchangeClient.futuresWatchCandlesticks({
+      symbol,
+      interval,
+      lookback,
+    });
   };
 
   futuresGet = async ({

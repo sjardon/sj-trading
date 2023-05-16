@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DatabaseModule } from './database/database.module';
 import configs from 'src/configs';
 import { DatabaseService } from './database/services/database.service';
+import { HelpersModule } from './helpers/helpers.module';
 
 @Module({
   controllers: [],
@@ -24,6 +25,7 @@ import { DatabaseService } from './database/services/database.service';
         databaseOptionsService.generateConnection(),
     }),
     DatabaseModule,
+    HelpersModule,
   ],
 })
 export class CommonModule {}

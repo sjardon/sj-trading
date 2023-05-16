@@ -33,7 +33,7 @@ export class CreateTradingSessionHandler
 
     const { createTradingSessionDto } = command;
     await this.validate(createTradingSessionDto);
-    await this.create(createTradingSessionDto);
+    return await this.create(createTradingSessionDto);
   }
 
   private async validate(createTradingSessionDto: CreateTradingSessionDto) {
@@ -154,6 +154,7 @@ export class CreateTradingSessionHandler
 
       return tradingSession;
     } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException(
         'Internal error: Trading session not created',
       );

@@ -21,8 +21,8 @@ export class TradingSessionsController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
-  create(@Body() createTradingSessionDto: CreateTradingSessionDto) {
-    return this.tradingSessionsService.create(createTradingSessionDto);
+  async create(@Body() createTradingSessionDto: CreateTradingSessionDto) {
+    return await this.tradingSessionsService.create(createTradingSessionDto);
   }
 
   @Get()

@@ -8,9 +8,10 @@ import { CandlestickSymbolType } from '../../candlesticks/symbols/candlestick-sy
 // import { OrderPositionSide } from '../../order/position-side/order-position-side.type';
 // import { OrderSide } from '../../order/side/order-side.type';
 
-export type InputRealTimeCandlesticks = {
-  symbols: CandlestickSymbolType[];
+export type InputWatchCandlesticks = {
+  symbol: CandlestickSymbolType;
   interval: CandlestickIntervalType;
+  lookback: number;
 };
 
 export type InputFuturesGetOrder = {
@@ -48,9 +49,9 @@ export interface ExchangeInterface {
     inputGetCandlesticks: InputGetCandlestick,
   ): Promise<CandlestickEntity[]>; // futuresCandles
 
-  // futuresRealTimeCandlesticks(
-  //   inputRealTimeCandlesticks: InputRealTimeCandlesticks
-  // ): Subject<CandlestickEntity>; // WS
+  futuresWatchCandlesticks(
+    inputWatchCandlesticks: InputWatchCandlesticks,
+  ): Promise<CandlestickEntity[]>; // WS
 
   // futuresGetOrder(
   //   inputFuturesGetOrder: InputFuturesGetOrder
