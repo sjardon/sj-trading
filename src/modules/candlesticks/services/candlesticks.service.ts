@@ -1,3 +1,4 @@
+import { CandlesticksCacheService } from './candlesticks-cache.service';
 import { InputWatchCandlesticks } from './../../adapters/exchange/exchange.interface';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,6 +10,7 @@ import { InputGetCandlestick } from './candlestick.interface';
 @Injectable()
 export class CandlesticksService {
   constructor(
+    private candlesticksCacheService: CandlesticksCacheService,
     private exchangeClient: ExchangeClient,
     @InjectRepository(CandlestickEntity)
     private candlesticksRepository: Repository<CandlestickEntity>,
@@ -19,11 +21,47 @@ export class CandlesticksService {
     interval,
     lookback,
   }: InputWatchCandlesticks) => {
-    return await this.exchangeClient.futuresWatchCandlesticks({
+    // TODO: Refactor needed
+
+    let prevCandlesticks = await this.candlesticksCacheService.getWatched({
+      symbol,
+      interval,
+    });
+
+    if (!prevCandlesticks) {
+      const candlesticks = await this.exchangeClient.futuresGetCandlesticks({
+        symbol,
+        interval,
+        lookback,
+        startTime: undefined,
+      });
+
+      await this.candlesticksCacheService.setWatched({
+        symbol,
+        interval,
+        candlesticks,
+      });
+      return candlesticks;
+    }
+
+    const newCandlesticks = await this.exchangeClient.futuresWatchCandlesticks({
       symbol,
       interval,
       lookback,
     });
+
+    await this.candlesticksCacheService.updateWatched({
+      symbol,
+      interval,
+      delta: newCandlesticks,
+    });
+
+    const candlesticks = await this.candlesticksCacheService.getWatched({
+      symbol,
+      interval,
+    });
+
+    return candlesticks ? candlesticks : [];
   };
 
   futuresGet = async ({

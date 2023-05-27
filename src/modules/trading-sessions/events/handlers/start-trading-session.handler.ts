@@ -16,6 +16,7 @@ import { IndicatorsExecutorsFactory } from '../../../indicators/factories/indica
 import { IndicatorExecutorInterface } from '../../../indicators/indicators-set/indicator-executor.interface';
 import { SignalEntity } from '../../../strategies/signals/entities/signal.entity';
 import { TickTradingSessionCommand } from '../../commands/impl/tick-trading-session.command';
+import { ReferenceVisitor } from 'src/common/visitors/reference.visitor';
 
 @EventsHandler(StartTradingSessionEvent)
 export class StartTradingSessionHandler
@@ -63,11 +64,15 @@ export class StartTradingSessionHandler
       this.initProcess(tradingSession);
       //  Get resources:
       //   - strategy -> indicators,
-      //   - candlesticks data,
+      //   - Signals to execute
+      //   - timeframes: candlesticks and indicators,
       //   - risk management,
       //   - account,
 
-      const { symbol, interval } = tradingSession;
+      const { symbol, interval, strategy } = tradingSession;
+
+      // TODO: add some var for loop controll
+
       while (true) {
         try {
           const candlesticks = await this.candlesticksService.futuresWatch({
@@ -76,7 +81,25 @@ export class StartTradingSessionHandler
             lookback: 1000,
           });
 
-          this.commandBus.execute(new TickTradingSessionCommand(candlesticks));
+          const indicators = this.indicatorExecturos.map((indicatorExecutor) =>
+            indicatorExecutor.exec(candlesticks),
+          );
+
+          // TODO: Save timeframes in an event.
+
+          this.referenceContextVisitor.addReference(
+            new ReferenceVisitor({
+              timeframes: [],
+              candlesticks,
+              indicators,
+              operation: this.operation,
+              // Set strategy constants
+              takeProfit: strategy.takeProfit,
+              stopLoss: strategy.stopLoss,
+            }),
+          );
+
+          // this.commandBus.execute(new TickTradingSessionCommand(candlesticks));
         } catch (e) {
           console.log(e);
           // throw e // uncomment to stop the loop on exceptions

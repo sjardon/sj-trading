@@ -16,10 +16,7 @@ import {
 
 import * as ccxt from 'ccxt';
 
-import { Subject } from 'rxjs';
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import {
   CandlestickIntervalType,
   CandlestickSymbolType,
@@ -27,7 +24,14 @@ import {
 
 @Injectable()
 export class ExchangeClient implements ExchangeInterface {
-  private exchangeWatcher = new ccxt.pro.binance();
+  private exchangeWatcher = new ccxt.pro.binance({
+    options: {
+      tradesLimit: 1000,
+      OHLCVLimit: 1000,
+      ordersLimit: 1000,
+    },
+    newUpdates: true,
+  });
   private exchange = new ccxt.binance();
   private futuresExchange = new ccxt.binance({
     options: { defaultType: 'future' },
@@ -76,10 +80,12 @@ export class ExchangeClient implements ExchangeInterface {
     endTime,
   }: InputGetCandlestick): Promise<CandlestickEntity[]> {
     try {
+      startTime = startTime ? +startTime : undefined;
+      console.log(startTime);
       const OHCLVs = await this.futuresExchange.fetchOHLCV(
         symbol,
         interval,
-        +startTime,
+        startTime,
         lookback,
       );
 
@@ -94,17 +100,16 @@ export class ExchangeClient implements ExchangeInterface {
     interval,
     lookback,
   }: InputWatchCandlesticks): Promise<CandlestickEntity[]> {
-    const OHCLVs = await this.exchangeWatcher.watchOHLCV(
-      symbol,
-      interval,
-      undefined,
-      lookback,
-    );
+    // TODO: Instead of getting OHLCV is so faster get orders and calculate by our own the OHLCV values.
+    // We can check this: https://github.com/ccxt/ccxt/wiki/ccxt.pro.manual/986efa88a55b860d6fb966b299ab317fce0997bc#watchohlcv
 
+    const OHCLVs = await this.exchangeWatcher.watchOHLCV(symbol, interval);
+
+    // TODO: Instead, return an observer
     return this.mapToCandlesticks(OHCLVs, symbol, interval);
   }
 
-  mapToCandlesticks(
+  private mapToCandlesticks(
     OHCLVs: ccxt.OHLCV[],
     symbol: CandlestickSymbolType,
     interval: CandlestickIntervalType,
@@ -122,8 +127,8 @@ export class ExchangeClient implements ExchangeInterface {
         closeTime: timestamp,
         volume: +volume,
         interval,
-      } as CandlestickEntity;
-    });
+      };
+    }) as CandlestickEntity[];
   }
 
   // realTimeCandlestick({
