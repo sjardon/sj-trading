@@ -3,6 +3,8 @@ import { TickTradingSessionCommand } from '../impl/tick-trading-session.command'
 import { Logger } from '@nestjs/common';
 import { SignalAction } from 'src/modules/strategies/signals/entities/signal.entity';
 import { AnalyzersService } from 'src/modules/analyzers/analyzers.service';
+import { ReferenceVisitor } from 'src/common/visitors/reference.visitor';
+import { OperationsService } from 'src/modules/operations/services/operations.service';
 
 @CommandHandler(TickTradingSessionCommand)
 export class TickTradingSessionHandler
@@ -10,20 +12,47 @@ export class TickTradingSessionHandler
 {
   private readonly logger = new Logger(TickTradingSessionHandler.name);
 
-  constructor(private analyzersService: AnalyzersService) {}
+  constructor(
+    private analyzersService: AnalyzersService,
+    private operationsService: OperationsService,
+  ) {}
 
   async execute(command: TickTradingSessionCommand) {
-    const { candlesticks } = command;
+    const {
+      tradingSession,
+      signals,
+      candlesticks,
+      operation,
+      strategy,
+      referenceContext,
+      indicatorExecutors,
+    } = command;
+
+    const { takeProfit, stopLoss } = strategy;
 
     try {
       // Analyze current data
 
-      const actionToPerform: SignalAction = this.analyzersService.analyze(
-        this.signals,
-        this.operation,
+      const indicators = indicatorExecutors.map((indicatorExecutor) =>
+        indicatorExecutor.exec(candlesticks),
       );
 
-      // Perform action
+      // TODO: Save timeframes in an event.
+
+      referenceContext.addReference(
+        new ReferenceVisitor({
+          timeframes: [],
+          candlesticks,
+          indicators,
+          operation,
+          takeProfit,
+          stopLoss,
+        }),
+      );
+      const actionToPerform: SignalAction = this.analyzersService.analyze(
+        signals,
+        operation,
+      );
 
       if (actionToPerform == SignalAction.NOTHING) {
         return;
@@ -32,14 +61,14 @@ export class TickTradingSessionHandler
       this.logger.log(`Running operation as ${actionToPerform}`);
 
       // TODO: Parameters refactor
-      // this.operation =
-      //   await this.backtestOperationsService.createBySignalAction(
-      //     this.operation,
+      // const createdOperation =
+      //   await this.operationsService.createBySignalAction(
+      //     operation,
       //     {
       //       actionToPerform,
-      //       symbol: this.backtest.symbol,
+      //       symbol: tradingSession.symbol,
       //       quantity: '0',
-      //       backtest: this.backtest,
+      //       tradingSession,
       //     },
       //     currentCandlesticks[currentCandlesticks.length - 1],
       //   );

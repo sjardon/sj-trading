@@ -17,6 +17,9 @@ import { IndicatorExecutorInterface } from '../../../indicators/indicators-set/i
 import { SignalEntity } from '../../../strategies/signals/entities/signal.entity';
 import { TickTradingSessionCommand } from '../../commands/impl/tick-trading-session.command';
 import { ReferenceVisitor } from 'src/common/visitors/reference.visitor';
+import { OperationEntity } from 'src/modules/operations/entities/operation.entity';
+import { CreateIndicatorExecutorDto } from 'src/modules/indicators/dto/create-indicator-executor.dto';
+import { StrategyEntity } from 'src/modules/strategies/entities/strategy.entity';
 
 @EventsHandler(StartTradingSessionEvent)
 export class StartTradingSessionHandler
@@ -24,7 +27,8 @@ export class StartTradingSessionHandler
 {
   protected signals: SignalEntity[];
   protected referenceContextVisitor: ReferenceContext = new ReferenceContext();
-  protected indicatorExecturos: IndicatorExecutorInterface[];
+  protected indicatorExecutors: IndicatorExecutorInterface[];
+  protected operation: OperationEntity;
 
   constructor(
     private readonly candlesticksService: CandlesticksService,
@@ -61,15 +65,18 @@ export class StartTradingSessionHandler
         );
       }
 
-      this.initProcess(tradingSession);
+      const { symbol, interval, strategy } = tradingSession;
+
+      const signals = this.getSignals(strategy);
+
+      const indicatorExecutors = this.getIndicatorExecutors(
+        strategy.indicators,
+      );
+
       //  Get resources:
-      //   - strategy -> indicators,
-      //   - Signals to execute
       //   - timeframes: candlesticks and indicators,
       //   - risk management,
       //   - account,
-
-      const { symbol, interval, strategy } = tradingSession;
 
       // TODO: add some var for loop controll
 
@@ -81,25 +88,17 @@ export class StartTradingSessionHandler
             lookback: 1000,
           });
 
-          const indicators = this.indicatorExecturos.map((indicatorExecutor) =>
-            indicatorExecutor.exec(candlesticks),
-          );
-
-          // TODO: Save timeframes in an event.
-
-          this.referenceContextVisitor.addReference(
-            new ReferenceVisitor({
-              timeframes: [],
+          this.commandBus.execute(
+            new TickTradingSessionCommand(
+              tradingSession,
+              signals,
               candlesticks,
-              indicators,
-              operation: this.operation,
-              // Set strategy constants
-              takeProfit: strategy.takeProfit,
-              stopLoss: strategy.stopLoss,
-            }),
+              this.operation,
+              strategy,
+              this.referenceContextVisitor,
+              indicatorExecutors,
+            ),
           );
-
-          // this.commandBus.execute(new TickTradingSessionCommand(candlesticks));
         } catch (e) {
           console.log(e);
           // throw e // uncomment to stop the loop on exceptions
@@ -110,22 +109,20 @@ export class StartTradingSessionHandler
     }
   }
 
-  initProcess(tradingSession: TradingSessionEntity) {
-    const { strategy } = tradingSession;
-
+  private getSignals(strategy: StrategyEntity) {
     const signalsFactory = new SignalsFactory();
-    this.signals = signalsFactory.create(
+    return signalsFactory.create(
       strategy.signals,
       this.referenceContextVisitor,
     );
-
-    const indicatorsExecutorsFactory = new IndicatorsExecutorsFactory();
-    this.indicatorExecturos = indicatorsExecutorsFactory.create(
-      strategy.indicators,
-    );
   }
 
-  validateTradingSessionStatus(tradingSession: TradingSessionEntity) {
+  private getIndicatorExecutors(indicators: CreateIndicatorExecutorDto[]) {
+    const indicatorsExecutorsFactory = new IndicatorsExecutorsFactory();
+    return indicatorsExecutorsFactory.create(indicators);
+  }
+
+  private validateTradingSessionStatus(tradingSession: TradingSessionEntity) {
     return [ENUM_TRADING_SESSION_STATUS.CREATED].includes(
       tradingSession.status,
     );

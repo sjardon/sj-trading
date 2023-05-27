@@ -10,12 +10,10 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { BacktestOrderEntity } from '../../backtest-orders/entities/backtest-order.entity';
+import { OperationEntityAbstract } from 'src/modules/operations/entities/operation.entity.abstract';
 
 @Entity('backtestOperation')
-export class BacktestOperationEntity extends BaseEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id!: string;
-
+export class BacktestOperationEntity extends OperationEntityAbstract {
   @ManyToOne(() => BacktestEntity)
   backtest: BacktestEntity;
 
@@ -26,38 +24,4 @@ export class BacktestOperationEntity extends BaseEntity {
   @OneToOne(() => BacktestOrderEntity)
   @JoinColumn()
   closeOrder?: BacktestOrderEntity;
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
-
-  isOpen(): boolean {
-    if (!this.closeOrder && this.openOrder) {
-      return true;
-    }
-
-    return false;
-  }
-
-  isClose(): boolean {
-    if (this.closeOrder) {
-      return true;
-    }
-
-    return false;
-  }
-
-  isBoth(): boolean {
-    return this.openOrder?.positionSide == 'BOTH' ? true : false;
-  }
-
-  isLong(): boolean {
-    return this.openOrder?.positionSide == 'LONG' ? true : false;
-  }
-
-  isShort(): boolean {
-    return this.openOrder?.positionSide == 'SHORT' ? true : false;
-  }
 }

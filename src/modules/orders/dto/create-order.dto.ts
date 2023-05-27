@@ -1,1 +1,1 @@
-export class CreateBacktestOrderDto {}
+export class CreateOrderDto {}

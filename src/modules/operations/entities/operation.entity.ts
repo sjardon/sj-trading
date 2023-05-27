@@ -1,4 +1,3 @@
-import { BacktestEntity } from '../../entities/backtest.entity';
 import {
   BaseEntity,
   CreateDateColumn,
@@ -11,46 +10,19 @@ import {
 } from 'typeorm';
 
 import { TradingSessionEntity } from 'src/modules/trading-sessions/entities/trading-session.entity';
-import { OperationAbstract } from './operation.entity.abstract';
+import { OperationEntityAbstract } from './operation.entity.abstract';
+import { OrderEntity } from 'src/modules/orders/entities/order.entity';
 
 @Entity('backtestOperation')
-export class OperationEntity extends OperationAbstract {
+export class OperationEntity extends OperationEntityAbstract {
   @ManyToOne(() => TradingSessionEntity)
   tradingSession: TradingSessionEntity;
 
-  // @OneToOne(() => BacktestOrderEntity)
-  // @JoinColumn()
-  // openOrder?: BacktestOrderEntity;
+  @OneToOne(() => OrderEntity)
+  @JoinColumn()
+  openOrder?: OrderEntity;
 
-  // @OneToOne(() => BacktestOrderEntity)
-  // @JoinColumn()
-  // closeOrder?: BacktestOrderEntity;
-
-  isOpen(): boolean {
-    if (!this.closeOrder && this.openOrder) {
-      return true;
-    }
-
-    return false;
-  }
-
-  isClose(): boolean {
-    if (this.closeOrder) {
-      return true;
-    }
-
-    return false;
-  }
-
-  isBoth(): boolean {
-    return this.openOrder?.positionSide == 'BOTH' ? true : false;
-  }
-
-  isLong(): boolean {
-    return this.openOrder?.positionSide == 'LONG' ? true : false;
-  }
-
-  isShort(): boolean {
-    return this.openOrder?.positionSide == 'SHORT' ? true : false;
-  }
+  @OneToOne(() => OrderEntity)
+  @JoinColumn()
+  closeOrder?: OrderEntity;
 }

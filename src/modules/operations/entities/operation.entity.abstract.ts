@@ -6,12 +6,12 @@ import {
 } from 'typeorm';
 import { OperationInterface } from './operation.entity.interface';
 
-export abstract class OperationAbstract
+export abstract class OperationEntityAbstract
   extends BaseEntity
   implements OperationInterface
 {
-  openOrder;
-  closeOrder;
+  openOrder?;
+  closeOrder?;
 
   @PrimaryGeneratedColumn('uuid')
   id!: string;

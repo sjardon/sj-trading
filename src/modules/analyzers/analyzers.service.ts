@@ -5,6 +5,7 @@ import {
 } from '../strategies/signals/entities/signal.entity';
 import { SignalsService } from '../strategies/signals/signals.service';
 import { BacktestOperationEntity } from '../backtests/backtest-operations/entities/backtest-operation.entity';
+import { OperationEntityAbstract } from '../operations/entities/operation.entity.abstract';
 
 @Injectable()
 export class AnalyzersService {
@@ -14,7 +15,7 @@ export class AnalyzersService {
 
   analyze(
     signals: SignalEntity[],
-    operation?: BacktestOperationEntity,
+    operation?: OperationEntityAbstract,
   ): SignalAction {
     const searchedSignalsActions = this.getSearchedSignalsActions(operation);
 
@@ -34,7 +35,7 @@ export class AnalyzersService {
   }
 
   private getSearchedSignalsActions(
-    operation?: BacktestOperationEntity,
+    operation?: OperationEntityAbstract,
   ): SignalAction[] {
     const searchedSignalsActions = [];
 
