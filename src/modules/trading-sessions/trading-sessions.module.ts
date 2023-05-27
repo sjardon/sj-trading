@@ -11,6 +11,8 @@ import { CreateTradingSessionHandler } from './commands/handlers/create-trading-
 import { HelpersModule } from '../../common/helpers/helpers.module';
 import { CandlesticksModule } from '../candlesticks/candlesticks.module';
 import { TickTradingSessionHandler } from './commands/handlers/tick-trading-session.handler';
+import { AnalyzersModule } from '../analyzers/analyzers.module';
+import { OperationsModule } from '../operations/operations.module';
 
 @Module({
   controllers: [TradingSessionsController],
@@ -22,9 +24,11 @@ import { TickTradingSessionHandler } from './commands/handlers/tick-trading-sess
   ],
   imports: [
     TypeOrmModule.forFeature([TradingSessionEntity]),
+    CqrsModule,
     CandlesticksModule,
     StrategiesModule,
-    CqrsModule,
+    AnalyzersModule,
+    OperationsModule,
     HelpersModule,
   ],
 })

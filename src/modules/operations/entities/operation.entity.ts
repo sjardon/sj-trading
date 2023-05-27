@@ -13,7 +13,7 @@ import { TradingSessionEntity } from 'src/modules/trading-sessions/entities/trad
 import { OperationEntityAbstract } from './operation.entity.abstract';
 import { OrderEntity } from 'src/modules/orders/entities/order.entity';
 
-@Entity('backtestOperation')
+@Entity('operation')
 export class OperationEntity extends OperationEntityAbstract {
   @ManyToOne(() => TradingSessionEntity)
   tradingSession: TradingSessionEntity;
