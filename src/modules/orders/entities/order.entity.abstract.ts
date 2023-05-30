@@ -22,7 +22,7 @@ export abstract class OrderEntityAbstract
   symbol: string;
 
   @Column('numeric')
-  executedQty: number;
+  amount: number;
 
   @Column()
   type: string;

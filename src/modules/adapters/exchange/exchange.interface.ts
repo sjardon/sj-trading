@@ -4,6 +4,11 @@ import { CandlestickEntity } from '../../candlesticks/entities/candlestick.entit
 import { InputGetCandlestick } from '../../candlesticks/services/candlestick.interface';
 import { CandlestickIntervalType } from '../../candlesticks/intervals/candlestick-interval.type';
 import { CandlestickSymbolType } from '../../candlesticks/symbols/candlestick-symbol.type';
+import { OrderEntity } from 'src/modules/orders/entities/order.entity';
+import {
+  InputExchangeClientCancelOrder,
+  InputExchangeClientCreateOrder,
+} from './exchange-client.types';
 // import { OrderEntity } from '../../order/order.entity';
 // import { OrderPositionSide } from '../../order/position-side/order-position-side.type';
 // import { OrderSide } from '../../order/side/order-side.type';
@@ -39,35 +44,23 @@ export interface ExchangeInterface {
     inputGetCandlesticks: InputGetCandlestick,
   ): Promise<CandlestickEntity[]>; // candles
 
-  // realTimeCandlestick(
-  //   inputRealTimeCandlesticks: InputRealTimeCandlesticks
-  // ): Subject<CandlestickEntity>; // WS
-
-  // futuresGetAccountBalance(): Promise<AccountEntity[]>;
-
   futuresGetCandlesticks(
     inputGetCandlesticks: InputGetCandlestick,
   ): Promise<CandlestickEntity[]>; // futuresCandles
 
   futuresWatchCandlesticks(
     inputWatchCandlesticks: InputWatchCandlesticks,
-  ): Promise<CandlestickEntity[]>; // WS
+  ): Promise<CandlestickEntity[]>;
 
-  // futuresGetOrder(
-  //   inputFuturesGetOrder: InputFuturesGetOrder
-  // ): Promise<OrderEntity>; // futuresGetOrder
+  createOrder({
+    symbol,
+    type,
+    side,
+    amount,
+  }: InputExchangeClientCreateOrder): Promise<OrderEntity>; // futuresOrder
 
-  // futuresGetOpenOrders(
-  //   inputFuturesGetOpenOrders: InputFuturesGetOpenOrders
-  // ): Promise<OrderEntity[]>; // futuresOpenOrders
-
-  // futuresCreateOrder(
-  //   inputFuturesCreateOrder: InputFuturesCreateOrder
-  // ): Promise<OrderEntity>; // futuresOrder
-
-  // futuresCancelOrder({
-  //   symbol,
-  //   orderId,
-  // }: InputFuturesCancelOrder): Promise<OrderEntity>; // futuresCancelOrder
-  // futuresAccountInfo():
+  cancelOrder({
+    exchangeOrderId,
+    symbol,
+  }: InputExchangeClientCancelOrder): Promise<OrderEntity>;
 }

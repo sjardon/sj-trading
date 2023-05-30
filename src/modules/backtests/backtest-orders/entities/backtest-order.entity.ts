@@ -28,7 +28,7 @@ export class BacktestOrderEntity extends BaseEntity {
   symbol: string;
 
   @Column('numeric')
-  executedQty: number;
+  amount: number;
 
   @Column()
   type: string;

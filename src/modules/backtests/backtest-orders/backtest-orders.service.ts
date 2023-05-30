@@ -140,8 +140,8 @@ export class BacktestOrdersService {
     try {
       const newOrder = this.backtestOrdersRepository.create({
         symbol,
-        // executedQty: +quantity,
-        executedQty: candlestick.close,
+        // amount: +quantity,
+        amount: candlestick.close,
         type: 'TRAILING_STOP_MARKET',
         side,
         positionSide,

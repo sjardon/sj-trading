@@ -3,7 +3,7 @@
 // import { AccountEntity } from "../../account/account.entity";
 import { CandlestickEntity } from '../../candlesticks/entities/candlestick.entity';
 import { InputGetCandlestick } from '../../candlesticks/services/candlestick.interface';
-// import { OrderEntity } from "../../order/order.entity";
+
 // import { decimalAdjust } from "../../utilities/decimal-adjust.util";
 import {
   ExchangeInterface,
@@ -21,10 +21,16 @@ import {
   CandlestickIntervalType,
   CandlestickSymbolType,
 } from 'src/modules/candlesticks/intervals/candlestick-interval.type';
+import { OrderEntity } from '../../orders/entities/order.entity';
+import {
+  InputExchangeClientCancelOrder,
+  InputExchangeClientCreateOrder,
+} from './exchange-client.types';
+import { OrderSide } from 'src/modules/orders/constants/orders.enum.constant';
 
 @Injectable()
 export class ExchangeClient implements ExchangeInterface {
-  private exchangeWatcher = new ccxt.pro.binance({
+  private futuresExchangeWatcher = new ccxt.pro.binanceusdm({
     options: {
       tradesLimit: 1000,
       OHLCVLimit: 1000,
@@ -33,8 +39,8 @@ export class ExchangeClient implements ExchangeInterface {
     newUpdates: true,
   });
   private exchange = new ccxt.binance();
-  private futuresExchange = new ccxt.binance({
-    options: { defaultType: 'future' },
+  private futuresExchange = new ccxt.binanceusdm({
+    // options: { defaultType: 'future' },
   });
 
   async getCandlesticks({
@@ -103,7 +109,10 @@ export class ExchangeClient implements ExchangeInterface {
     // TODO: Instead of getting OHLCV is so faster get orders and calculate by our own the OHLCV values.
     // We can check this: https://github.com/ccxt/ccxt/wiki/ccxt.pro.manual/986efa88a55b860d6fb966b299ab317fce0997bc#watchohlcv
 
-    const OHCLVs = await this.exchangeWatcher.watchOHLCV(symbol, interval);
+    const OHCLVs = await this.futuresExchangeWatcher.watchOHLCV(
+      symbol,
+      interval,
+    );
 
     // TODO: Instead, return an observer
     return this.mapToCandlesticks(OHCLVs, symbol, interval);
@@ -131,36 +140,79 @@ export class ExchangeClient implements ExchangeInterface {
     }) as CandlestickEntity[];
   }
 
-  // realTimeCandlestick({
-  //   symbols,
-  //   interval,
-  // }: InputRealTimeCandlesticks): Subject<CandlestickEntity> {
-  //   // const subject = new Subject<CandlestickEntity>();
+  async createOrder({
+    symbol,
+    type,
+    side,
+    positionSide,
+    amount,
+  }: InputExchangeClientCreateOrder): Promise<OrderEntity> {
+    try {
+      const createdOrder = await this.futuresExchange.createOrder(
+        symbol,
+        type,
+        side,
+        amount,
+        undefined,
+        {
+          positionSide,
+        },
+      );
 
-  //   // this.binanceClient.ws.candles(symbols, interval, (candlestick) => {
-  //   //   // any
-  //   //   if (candlestick) {
-  //   //     const { symbol, open, close, high, low, startTime, closeTime, volume } =
-  //   //       candlestick;
+      return this.mapToOrder(createdOrder);
+    } catch (error) {
+      throw error;
+    }
+  }
 
-  //   //     subject.next(
-  //   //       new CandlestickEntity({
-  //   //         symbol,
-  //   //         open: +open,
-  //   //         close: +close,
-  //   //         high: +high,
-  //   //         low: +low,
-  //   //         openTime: startTime,
-  //   //         closeTime,
-  //   //         volume: +volume,
-  //   //       }),
-  //   //     );
-  //   //   }
-  //   // });
+  async cancelOrder({
+    exchangeOrderId,
+    symbol,
+  }: InputExchangeClientCancelOrder): Promise<OrderEntity> {
+    try {
+      const canceledOrder = await this.futuresExchange.cancelOrder(
+        exchangeOrderId,
+        symbol,
+      );
 
-  //   // return subject;
-  //   throw new Error('Not implemented');
-  // }
+      return this.mapToOrder(canceledOrder);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  private mapToOrders(orders: ccxt.Order[]) {
+    return orders.map((order) => this.mapToOrder(order)) as OrderEntity[];
+  }
+
+  private mapToOrder(order: ccxt.Order): OrderEntity {
+    const {
+      id: exchangeOrderId,
+      datetime,
+      status: exchangeOrderStatus,
+      symbol,
+      type,
+      side: exchangeSide,
+      price,
+      amount,
+      info,
+    } = order;
+
+    const { positionSide } = info;
+    const side = exchangeSide == 'buy' ? OrderSide.BUY : OrderSide.SELL;
+    const transactTime = new Date(datetime).toISOString();
+
+    return {
+      exchangeOrderId,
+      exchangeOrderStatus,
+      symbol,
+      amount,
+      type,
+      side,
+      positionSide,
+      transactTime,
+    } as OrderEntity;
+  }
 
   // async futuresGetAccountBalance(): Promise<AccountEntity[]> {
   //   // const accountBalances = await this.binanceClient.futuresAccountBalance();
@@ -190,7 +242,7 @@ export class ExchangeClient implements ExchangeInterface {
   //   //     clientOrderId,
   //   //     price,
   //   //     origQty,
-  //   //     executedQty,
+  //   //     amount,
   //   //     status,
   //   //     timeInForce,
   //   //     type,
@@ -204,7 +256,7 @@ export class ExchangeClient implements ExchangeInterface {
   //   //     clientOrderId,
   //   //     price: +price,
   //   //     origQty: +origQty,
-  //   //     executedQty: +executedQty,
+  //   //     amount: +amount,
   //   //     status,
   //   //     timeInForce,
   //   //     type,
@@ -234,7 +286,7 @@ export class ExchangeClient implements ExchangeInterface {
   //   //       clientOrderId,
   //   //       price,
   //   //       origQty,
-  //   //       executedQty,
+  //   //       amount,
   //   //       status,
   //   //       timeInForce,
   //   //       type,
@@ -248,7 +300,7 @@ export class ExchangeClient implements ExchangeInterface {
   //   //       clientOrderId,
   //   //       price: +price,
   //   //       origQty: +origQty,
-  //   //       executedQty: +executedQty,
+  //   //       amount: +amount,
   //   //       status,
   //   //       timeInForce,
   //   //       type,
@@ -286,7 +338,7 @@ export class ExchangeClient implements ExchangeInterface {
   //   //     clientOrderId,
   //   //     price,
   //   //     origQty,
-  //   //     executedQty,
+  //   //     amount,
   //   //     status,
   //   //     timeInForce,
   //   //     type,
@@ -300,7 +352,7 @@ export class ExchangeClient implements ExchangeInterface {
   //   //     clientOrderId,
   //   //     price: +price,
   //   //     origQty: +origQty,
-  //   //     executedQty: +executedQty,
+  //   //     amount: +amount,
   //   //     status,
   //   //     timeInForce,
   //   //     type,
@@ -326,7 +378,7 @@ export class ExchangeClient implements ExchangeInterface {
   //   //     clientOrderId,
   //   //     price,
   //   //     origQty,
-  //   //     executedQty,
+  //   //     amount,
   //   //     status,
   //   //     timeInForce,
   //   //     type,
@@ -343,7 +395,7 @@ export class ExchangeClient implements ExchangeInterface {
   //   //     clientOrderId,
   //   //     price: +price,
   //   //     origQty: +origQty,
-  //   //     executedQty: +executedQty,
+  //   //     amount: +amount,
   //   //     status,
   //   //     timeInForce,
   //   //     type,

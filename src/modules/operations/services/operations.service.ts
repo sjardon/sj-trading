@@ -14,6 +14,15 @@ export type InputCreateOperationBySignalAction = InputCreateOrder & {
   tradingSession: TradingSessionEntity;
 };
 
+const mappedActionsToPerform = {
+  [SignalAction.BUY]: 'open',
+  [SignalAction.SELL]: 'close',
+  [SignalAction.OPEN_LONG]: 'openLong',
+  [SignalAction.CLOSE_LONG]: 'closeLong',
+  [SignalAction.OPEN_SHORT]: 'openShort',
+  [SignalAction.CLOSE_SHORT]: 'closeShort',
+};
+
 @Injectable()
 export class OperationsService {
   private readonly logger = new Logger(OperationsService.name);
@@ -27,7 +36,6 @@ export class OperationsService {
   async createBySignalAction(
     lastOperation: OperationEntity,
     inputCreateOperationBySignalAction: InputCreateOperationBySignalAction,
-    candlestick?: CandlestickEntity,
   ) {
     const { tradingSession, ...inputCreateOrder } =
       inputCreateOperationBySignalAction;
@@ -38,47 +46,54 @@ export class OperationsService {
 
     lastOperation = this.createIfNotExists(lastOperation, tradingSession);
 
-    if (SignalAction.BUY == actionToPerform) {
-      lastOperation.openOrder = await this.ordersService.open(
-        inputCreateOrder,
-        candlestick,
-      );
+    if (SignalAction.NOTHING == actionToPerform) {
+      return lastOperation;
     }
 
-    if (SignalAction.SELL == actionToPerform) {
-      lastOperation.closeOrder = await this.ordersService.close(
-        inputCreateOrder,
-        candlestick,
-      );
-    }
+    const keyOfMethodToPerform = mappedActionsToPerform[actionToPerform];
+    return await this.ordersService[keyOfMethodToPerform]();
+    // this.createOrder();
+    // if (SignalAction.BUY == actionToPerform) {
+    //   lastOperation.openOrder = await this.ordersService.open(
+    //     inputCreateOrder,
+    //     candlestick,
+    //   );
+    // }
 
-    if (SignalAction.OPEN_LONG == actionToPerform) {
-      lastOperation.openOrder = await this.ordersService.openLong(
-        inputCreateOrder,
-        candlestick,
-      );
-    }
+    // if (SignalAction.SELL == actionToPerform) {
+    //   lastOperation.closeOrder = await this.ordersService.close(
+    //     inputCreateOrder,
+    //     candlestick,
+    //   );
+    // }
 
-    if (SignalAction.CLOSE_LONG == actionToPerform) {
-      lastOperation.closeOrder = await this.ordersService.closeLong(
-        inputCreateOrder,
-        candlestick,
-      );
-    }
+    // if (SignalAction.OPEN_LONG == actionToPerform) {
+    //   lastOperation.openOrder = await this.ordersService.openLong(
+    //     inputCreateOrder,
+    //     candlestick,
+    //   );
+    // }
 
-    if (SignalAction.OPEN_SHORT == actionToPerform) {
-      lastOperation.openOrder = await this.ordersService.openShort(
-        inputCreateOrder,
-        candlestick,
-      );
-    }
+    // if (SignalAction.CLOSE_LONG == actionToPerform) {
+    //   lastOperation.closeOrder = await this.ordersService.closeLong(
+    //     inputCreateOrder,
+    //     candlestick,
+    //   );
+    // }
 
-    if (SignalAction.CLOSE_SHORT == actionToPerform) {
-      lastOperation.closeOrder = await this.ordersService.closeShort(
-        inputCreateOrder,
-        candlestick,
-      );
-    }
+    // if (SignalAction.OPEN_SHORT == actionToPerform) {
+    //   lastOperation.openOrder = await this.ordersService.openShort(
+    //     inputCreateOrder,
+    //     candlestick,
+    //   );
+    // }
+
+    // if (SignalAction.CLOSE_SHORT == actionToPerform) {
+    //   lastOperation.closeOrder = await this.ordersService.closeShort(
+    //     inputCreateOrder,
+    //     candlestick,
+    //   );
+    // }
 
     return await this.operationsRepository.save(lastOperation);
   }

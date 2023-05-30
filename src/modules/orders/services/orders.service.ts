@@ -1,3 +1,4 @@
+import { ExchangeClientOrderSide } from './../../adapters/exchange/exchange-client.types';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -8,149 +9,98 @@ import { OrderEntity } from '../entities/order.entity';
 import {
   OrderPositionSide,
   OrderSide,
+  OrderType,
 } from '../constants/orders.enum.constant';
+import { ExchangeClient } from 'src/modules/adapters/exchange/exchange.client';
+import { CreateOrderDto } from '../dto/create-order.dto';
 
-export type InputCreateOrder = {
-  actionToPerform: SignalAction;
+type InputOrderOpen = {
   symbol: CandlestickSymbolType;
-  quantity: string;
+  amount: number;
 };
 
 @Injectable()
 export class OrdersService {
   constructor(
+    private exchangeClient: ExchangeClient,
     @InjectRepository(OrderEntity)
     private ordersRepository: Repository<OrderEntity>,
   ) {}
 
-  async open(
-    inputFuturesOpenLongOrder: {
-      symbol: CandlestickSymbolType;
-      quantity: string;
-    },
-    candlestick?: CandlestickEntity,
-  ) {
-    return await this.create(
-      {
-        ...inputFuturesOpenLongOrder,
-        side: OrderSide.BUY,
-        positionSide: OrderPositionSide.BOTH,
-      },
-      candlestick,
-    );
+  async open({ symbol, amount }: InputOrderOpen) {
+    return await this.create({
+      symbol,
+      side: OrderSide.BUY,
+      amount,
+    });
   }
 
-  async close(
-    inputFuturesOpenLongOrder: {
-      symbol: CandlestickSymbolType;
-      quantity: string;
-    },
-    candlestick?: CandlestickEntity,
-  ) {
-    return await this.create(
-      {
-        ...inputFuturesOpenLongOrder,
-        side: OrderSide.SELL,
-        positionSide: OrderPositionSide.BOTH,
-      },
-      candlestick,
-    );
+  async close({ symbol, amount }: InputOrderOpen) {
+    return await this.create({
+      symbol,
+      side: OrderSide.SELL,
+      amount,
+    });
   }
 
-  async openLong(
-    inputFuturesOpenLongOrder: {
-      symbol: CandlestickSymbolType;
-      quantity: string;
-    },
-    candlestick?: CandlestickEntity,
-  ) {
-    return await this.create(
-      {
-        ...inputFuturesOpenLongOrder,
-        side: OrderSide.BUY,
-        positionSide: OrderPositionSide.LONG,
-      },
-      candlestick,
-    );
+  async openLong({ symbol, amount }: InputOrderOpen) {
+    return await this.create({
+      symbol,
+      side: OrderSide.BUY,
+      positionSide: OrderPositionSide.LONG,
+      amount,
+    });
   }
 
-  async closeLong(
-    inputFuturesOpenLongOrder: {
-      symbol: CandlestickSymbolType;
-      quantity: string;
-    },
-    candlestick?: CandlestickEntity,
-  ) {
-    return await this.create(
-      {
-        ...inputFuturesOpenLongOrder,
-        side: OrderSide.SELL,
-        positionSide: OrderPositionSide.LONG,
-      },
-      candlestick,
-    );
+  async closeLong({ symbol, amount }: InputOrderOpen) {
+    return await this.create({
+      symbol,
+      side: OrderSide.SELL,
+      positionSide: OrderPositionSide.LONG,
+      amount,
+    });
   }
 
-  async openShort(
-    inputFuturesOpenLongOrder: {
-      symbol: CandlestickSymbolType;
-      quantity: string;
-    },
-    candlestick?: CandlestickEntity,
-  ) {
-    return await this.create(
-      {
-        ...inputFuturesOpenLongOrder,
-        side: OrderSide.BUY,
-        positionSide: OrderPositionSide.SHORT,
-      },
-      candlestick,
-    );
+  async openShort({ symbol, amount }: InputOrderOpen) {
+    return await this.create({
+      symbol,
+      side: OrderSide.BUY,
+      positionSide: OrderPositionSide.SHORT,
+      amount,
+    });
   }
 
-  async closeShort(
-    inputFuturesOpenLongOrder: {
-      symbol: CandlestickSymbolType;
-      quantity: string;
-    },
-    candlestick?: CandlestickEntity,
-  ) {
-    return await this.create(
-      {
-        ...inputFuturesOpenLongOrder,
-        side: OrderSide.SELL,
-        positionSide: OrderPositionSide.SHORT,
-      },
-      candlestick,
-    );
+  async closeShort({ symbol, amount }: InputOrderOpen) {
+    return await this.create({
+      symbol,
+      side: OrderSide.SELL,
+      positionSide: OrderPositionSide.SHORT,
+      amount,
+    });
   }
 
-  async create(
-    inputFuturesCreateOrder: {
-      symbol: CandlestickSymbolType;
-      side: OrderSide;
-      positionSide: OrderPositionSide;
-      quantity: string;
-      stopLoss?: number;
-    },
-    candlestick?: CandlestickEntity,
-  ) {
-    const { symbol, side, positionSide, quantity, stopLoss } =
-      inputFuturesCreateOrder;
+  async create({
+    symbol,
+    type,
+    side,
+    positionSide,
+    amount,
+  }: CreateOrderDto): Promise<OrderEntity> {
+    const mappedType = type || OrderType.MARKET;
+    const mappedSide =
+      side == OrderSide.BUY
+        ? ExchangeClientOrderSide.BUY
+        : ExchangeClientOrderSide.SELL;
+
     try {
-      const newOrder = this.ordersRepository.create({
+      return await this.exchangeClient.createOrder({
         symbol,
-        // executedQty: +quantity,
-        executedQty: candlestick.close,
-        type: 'TRAILING_STOP_MARKET',
-        side,
+        type: mappedType,
+        side: mappedSide,
         positionSide,
-        transactTime: candlestick?.closeTime.toString() || '0',
+        amount,
       });
-
-      return await newOrder.save();
     } catch (error) {
-      console.error('CREATE ORDER ERROR', error);
       throw error;
     }
   }

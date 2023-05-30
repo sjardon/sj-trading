@@ -8,3 +8,7 @@ export enum OrderPositionSide {
   'SHORT' = 'SHORT',
   'LONG' = 'LONG',
 }
+
+export enum OrderType {
+  'MARKET' = 'market',
+}
