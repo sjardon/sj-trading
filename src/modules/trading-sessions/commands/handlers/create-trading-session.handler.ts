@@ -12,10 +12,8 @@ import {
 } from '@nestjs/common';
 import { MAX_RUNNING_TRADING_SESSIONS } from '../../constants/trading-session.constants';
 import { ENUM_TRADING_SESSION_STATUS } from '../../constants/trading-session-status.enum.constant';
-import {
-  CandlestickIntervalType,
-  CandlestickSymbolType,
-} from '../../../candlesticks/intervals/candlestick-interval.type';
+import { CandlestickIntervalType } from '../../../candlesticks/constants/candlestick-interval.enum.constant';
+import { SymbolType } from '../../../../common/helpers/services/symbols/constants/symbol.enum.constant';
 
 @CommandHandler(CreateTradingSessionCommand)
 export class CreateTradingSessionHandler
@@ -69,7 +67,7 @@ export class CreateTradingSessionHandler
   }
 
   async validateSingleTradingSessions(
-    symbol: CandlestickSymbolType,
+    symbol: SymbolType,
     interval: CandlestickIntervalType,
   ) {
     try {

@@ -1,7 +1,7 @@
 import { Subject } from 'rxjs';
 import { CandlestickEntity } from '../entities/candlestick.entity';
-import { CandlestickIntervalType } from '../intervals/candlestick-interval.type';
-import { CandlestickSymbolType } from '../symbols/candlestick-symbol.type';
+import { CandlestickIntervalType } from '../constants/candlestick-interval.enum.constant';
+import { SymbolType } from '../../../common/helpers/services/symbols/constants/symbol.enum.constant';
 
 type InputCandlestick = {
   interval: CandlestickIntervalType;
@@ -11,11 +11,11 @@ type InputCandlestick = {
 };
 
 export type InputGetCandlestick = InputCandlestick & {
-  symbol: CandlestickSymbolType;
+  symbol: SymbolType;
 };
 
 export type InputGetAllCurrentCandlestick = InputCandlestick & {
-  symbols: CandlestickSymbolType[];
+  symbols: SymbolType[];
 };
 
 export interface CandlestickServiceInterface {

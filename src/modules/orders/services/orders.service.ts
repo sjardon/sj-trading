@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CandlestickEntity } from '../../candlesticks/entities/candlestick.entity';
-import { CandlestickSymbolType } from '../../candlesticks/intervals/candlestick-interval.type';
+import { SymbolType } from '../../../common/helpers/services/symbols/constants/symbol.enum.constant';
 import { SignalAction } from '../../strategies/signals/entities/signal.entity';
 import { OrderEntity } from '../entities/order.entity';
 import {
@@ -14,8 +14,8 @@ import {
 import { ExchangeClient } from 'src/modules/adapters/exchange/exchange.client';
 import { CreateOrderDto } from '../dto/create-order.dto';
 
-type InputOrderOpen = {
-  symbol: CandlestickSymbolType;
+export type InputOrderOpen = {
+  symbol: SymbolType;
   amount: number;
 };
 

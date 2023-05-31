@@ -7,8 +7,8 @@ import { StrategiesService } from '../../../strategies/services/strategies.servi
 import { CreateTradingSessionCommand } from '../impl/create-trading-session.command';
 import {
   CandlestickIntervalType,
-  CandlestickSymbolType,
-} from '../../../candlesticks/intervals/candlestick-interval.type';
+  SymbolType,
+} from '../../../candlesticks/constants/candlestick-interval.enum.constant';
 import {
   BadRequestException,
   ServiceUnavailableException,
@@ -51,7 +51,7 @@ describe('CreateTradingSessionHandler', () => {
       const command = new CreateTradingSessionCommand({
         name: 'some-name',
         strategyId,
-        symbol: CandlestickSymbolType.BTCUSDT,
+        symbol: SymbolType.BTCUSDT,
         interval: CandlestickIntervalType['1h'],
       });
 
@@ -64,7 +64,7 @@ describe('CreateTradingSessionHandler', () => {
 
     it('Throw error if it is running a trading session with same symbol-interval', async () => {
       const strategyId = '39eacc52-a4db-4d97-a575-e564f7e4aeb8';
-      const symbol = CandlestickSymbolType.BTCUSDT;
+      const symbol = SymbolType.BTCUSDT;
       const interval = CandlestickIntervalType['1h'];
       const command = new CreateTradingSessionCommand({
         name: 'some-name',
@@ -85,7 +85,7 @@ describe('CreateTradingSessionHandler', () => {
 
     it('Throw error if max running trading session has reached', async () => {
       const strategyId = '39eacc52-a4db-4d97-a575-e564f7e4aeb8';
-      const symbol = CandlestickSymbolType.BTCUSDT;
+      const symbol = SymbolType.BTCUSDT;
       const interval = CandlestickIntervalType['1h'];
       const command = new CreateTradingSessionCommand({
         name: 'some-name',
@@ -116,7 +116,7 @@ describe('CreateTradingSessionHandler', () => {
     const tradingSessionDto = {
       name: 'some-name',
       strategyId,
-      symbol: CandlestickSymbolType.BTCUSDT,
+      symbol: SymbolType.BTCUSDT,
       interval: CandlestickIntervalType['1h'],
     };
 

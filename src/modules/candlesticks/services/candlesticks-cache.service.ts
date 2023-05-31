@@ -7,32 +7,29 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 
 import { CandlestickEntity } from '../entities/candlestick.entity';
-import {
-  CandlestickIntervalType,
-  CandlestickSymbolType,
-} from '../intervals/candlestick-interval.type';
-
+import { CandlestickIntervalType } from '../constants/candlestick-interval.enum.constant';
+import { SymbolType } from '../../../common/helpers/services/symbols/constants/symbol.enum.constant';
 import { MAX_CACHED_CANDLESTICKS } from '../constants/candlesticks-cache.constants';
 
 export type InputGetWatchedCandlesticksCache = {
-  symbol: CandlestickSymbolType;
+  symbol: SymbolType;
   interval: CandlestickIntervalType;
 };
 
 export type InputSetWatchedCandlesticksCache = {
-  symbol: CandlestickSymbolType;
+  symbol: SymbolType;
   interval: CandlestickIntervalType;
   candlesticks: CandlestickEntity[];
 };
 
 export type InputUpdateWatchedCandlesticksCache = {
-  symbol: CandlestickSymbolType;
+  symbol: SymbolType;
   interval: CandlestickIntervalType;
   delta: CandlestickEntity[];
 };
 
 export type InputDeleteWatchedCandlesticksCache = {
-  symbol: CandlestickSymbolType;
+  symbol: SymbolType;
   interval: CandlestickIntervalType;
 };
 

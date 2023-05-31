@@ -5,10 +5,8 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator';
-import {
-  CandlestickIntervalType,
-  CandlestickSymbolType,
-} from 'src/modules/candlesticks/intervals/candlestick-interval.type';
+import { CandlestickIntervalType } from '../../candlesticks/constants/candlestick-interval.enum.constant';
+import { SymbolType } from '../../../common/helpers/services/symbols/constants/symbol.enum.constant';
 
 export class CreateTradingSessionDto {
   @IsOptional()
@@ -18,8 +16,8 @@ export class CreateTradingSessionDto {
   @IsUUID()
   strategyId: string;
 
-  @IsEnum(CandlestickSymbolType)
-  symbol: CandlestickSymbolType;
+  @IsEnum(SymbolType)
+  symbol: SymbolType;
 
   @IsEnum(CandlestickIntervalType)
   interval: CandlestickIntervalType;

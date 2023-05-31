@@ -2,8 +2,8 @@ import { Subject } from 'rxjs';
 // import { AccountEntity } from '../../account/account.entity';
 import { CandlestickEntity } from '../../candlesticks/entities/candlestick.entity';
 import { InputGetCandlestick } from '../../candlesticks/services/candlestick.interface';
-import { CandlestickIntervalType } from '../../candlesticks/intervals/candlestick-interval.type';
-import { CandlestickSymbolType } from '../../candlesticks/symbols/candlestick-symbol.type';
+import { CandlestickIntervalType } from '../../candlesticks/constants/candlestick-interval.enum.constant';
+import { SymbolType } from '../../../common/helpers/services/symbols/constants/symbol.enum.constant';
 import { OrderEntity } from 'src/modules/orders/entities/order.entity';
 import {
   InputExchangeClientCancelOrder,
@@ -14,20 +14,20 @@ import {
 // import { OrderSide } from '../../order/side/order-side.type';
 
 export type InputWatchCandlesticks = {
-  symbol: CandlestickSymbolType;
+  symbol: SymbolType;
   interval: CandlestickIntervalType;
   lookback: number;
 };
 
 export type InputFuturesGetOrder = {
-  symbol: CandlestickSymbolType;
+  symbol: SymbolType;
   orderId: number;
 };
 
-export type InputFuturesGetOpenOrders = { symbol: CandlestickSymbolType };
+export type InputFuturesGetOpenOrders = { symbol: SymbolType };
 
 // export type InputFuturesCreateOrder = {
-//   symbol: CandlestickSymbolType;
+//   symbol: SymbolType;
 //   side: OrderSide;
 //   positionSide: OrderPositionSide;
 //   quantity: number;
@@ -35,14 +35,14 @@ export type InputFuturesGetOpenOrders = { symbol: CandlestickSymbolType };
 // };
 
 export type InputFuturesCancelOrder = {
-  symbol: CandlestickSymbolType;
+  symbol: SymbolType;
   orderId: number;
 };
 
 export interface ExchangeInterface {
-  getCandlesticks(
-    inputGetCandlesticks: InputGetCandlestick,
-  ): Promise<CandlestickEntity[]>; // candles
+  // getCandlesticks(
+  //   inputGetCandlesticks: InputGetCandlestick,
+  // ): Promise<CandlestickEntity[]>; // candles
 
   futuresGetCandlesticks(
     inputGetCandlesticks: InputGetCandlestick,
@@ -51,6 +51,8 @@ export interface ExchangeInterface {
   futuresWatchCandlesticks(
     inputWatchCandlesticks: InputWatchCandlesticks,
   ): Promise<CandlestickEntity[]>;
+
+  watchBalances(): Promise<any>;
 
   createOrder({
     symbol,

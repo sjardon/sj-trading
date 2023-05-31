@@ -1,82 +1,87 @@
-// import { Binance, NewFuturesOrder } from "binance-api-node";
-// import { Subject } from "rxjs";
-// import { AccountEntity } from "../../account/account.entity";
+import { ConfigService } from '@nestjs/config';
 import { CandlestickEntity } from '../../candlesticks/entities/candlestick.entity';
 import { InputGetCandlestick } from '../../candlesticks/services/candlestick.interface';
-
-// import { decimalAdjust } from "../../utilities/decimal-adjust.util";
 import {
   ExchangeInterface,
-  InputFuturesCancelOrder,
-  // InputFuturesCreateOrder,
-  InputFuturesGetOpenOrders,
-  InputFuturesGetOrder,
   InputWatchCandlesticks,
 } from './exchange.interface';
 
 import * as ccxt from 'ccxt';
 
 import { Injectable } from '@nestjs/common';
-import {
-  CandlestickIntervalType,
-  CandlestickSymbolType,
-} from 'src/modules/candlesticks/intervals/candlestick-interval.type';
+import { CandlestickIntervalType } from '../../candlesticks/constants/candlestick-interval.enum.constant';
+import { SymbolType } from '../../../common/helpers/services/symbols/constants/symbol.enum.constant';
 import { OrderEntity } from '../../orders/entities/order.entity';
 import {
   InputExchangeClientCancelOrder,
   InputExchangeClientCreateOrder,
 } from './exchange-client.types';
 import { OrderSide } from 'src/modules/orders/constants/orders.enum.constant';
+import { BalanceEntity } from 'src/modules/balances/entities/balance.entity';
 
 @Injectable()
 export class ExchangeClient implements ExchangeInterface {
-  private futuresExchangeWatcher = new ccxt.pro.binanceusdm({
-    options: {
-      tradesLimit: 1000,
-      OHLCVLimit: 1000,
-      ordersLimit: 1000,
-    },
-    newUpdates: true,
-  });
-  private exchange = new ccxt.binance();
-  private futuresExchange = new ccxt.binanceusdm({
-    // options: { defaultType: 'future' },
-  });
+  private futuresExchangeWatcher: ccxt.pro.binanceusdm;
+  private futuresExchange: ccxt.binanceusdm;
 
-  async getCandlesticks({
-    symbol,
-    interval,
-    lookback,
-    startTime,
-    endTime,
-  }: InputGetCandlestick): Promise<CandlestickEntity[]> {
-    try {
-      const candlesticks = await this.exchange.fetchOHLCV(
-        symbol,
-        interval,
-        +startTime,
-        lookback,
-      );
+  constructor(private readonly configService: ConfigService) {
+    console.log(
+      configService.get<string>('exchange.binance.apiKey'),
+      configService.get<string>('exchange.binance.secretKey'),
+    );
+    this.futuresExchangeWatcher = new ccxt.pro.binanceusdm({
+      apiKey: configService.get<string>('exchange.binance.apiKey'),
+      secret: configService.get<string>('exchange.binance.secretKey'),
+      // options: {
+      //   tradesLimit: 1000,
+      //   OHLCVLimit: 1000,
+      //   ordersLimit: 1000,
+      // },
+      // newUpdates: true,
+    });
 
-      return candlesticks.map((candlestick) => {
-        const [timestamp, open, high, low, close, volume] = candlestick;
-
-        return {
-          symbol,
-          open: +open,
-          close: +close,
-          high: +high,
-          low: +low,
-          openTime: timestamp,
-          closeTime: timestamp,
-          volume: +volume,
-          interval,
-        } as CandlestickEntity;
-      });
-    } catch (thrownError) {
-      throw new Error('Exchange get candlesticks error');
-    }
+    // private exchange = new ccxt.binance();
+    this.futuresExchange = new ccxt.binanceusdm({
+      apiKey: configService.get<string>('exchange.binance.apiKey'),
+      secret: configService.get<string>('exchange.binance.secretKey'),
+      // options: { defaultType: 'future' },
+    });
   }
+
+  // async getCandlesticks({
+  //   symbol,
+  //   interval,
+  //   lookback,
+  //   startTime,
+  //   endTime,
+  // }: InputGetCandlestick): Promise<CandlestickEntity[]> {
+  //   try {
+  //     const candlesticks = await this.exchange.fetchOHLCV(
+  //       symbol,
+  //       interval,
+  //       +startTime,
+  //       lookback,
+  //     );
+
+  //     return candlesticks.map((candlestick) => {
+  //       const [timestamp, open, high, low, close, volume] = candlestick;
+
+  //       return {
+  //         symbol,
+  //         open: +open,
+  //         close: +close,
+  //         high: +high,
+  //         low: +low,
+  //         openTime: timestamp,
+  //         closeTime: timestamp,
+  //         volume: +volume,
+  //         interval,
+  //       } as CandlestickEntity;
+  //     });
+  //   } catch (thrownError) {
+  //     throw new Error('Exchange get candlesticks error');
+  //   }
+  // }
 
   async futuresGetCandlesticks({
     symbol,
@@ -109,18 +114,22 @@ export class ExchangeClient implements ExchangeInterface {
     // TODO: Instead of getting OHLCV is so faster get orders and calculate by our own the OHLCV values.
     // We can check this: https://github.com/ccxt/ccxt/wiki/ccxt.pro.manual/986efa88a55b860d6fb966b299ab317fce0997bc#watchohlcv
 
-    const OHCLVs = await this.futuresExchangeWatcher.watchOHLCV(
-      symbol,
-      interval,
-    );
+    try {
+      const OHCLVs = await this.futuresExchangeWatcher.watchOHLCV(
+        symbol,
+        interval,
+      );
 
-    // TODO: Instead, return an observer
-    return this.mapToCandlesticks(OHCLVs, symbol, interval);
+      // TODO: Instead, return an observer
+      return this.mapToCandlesticks(OHCLVs, symbol, interval);
+    } catch (error) {
+      throw error;
+    }
   }
 
   private mapToCandlesticks(
     OHCLVs: ccxt.OHLCV[],
-    symbol: CandlestickSymbolType,
+    symbol: SymbolType,
     interval: CandlestickIntervalType,
   ) {
     return OHCLVs.map((OHCLV) => {
@@ -140,6 +149,55 @@ export class ExchangeClient implements ExchangeInterface {
     }) as CandlestickEntity[];
   }
 
+  async watchBalances() {
+    try {
+      return await this.futuresExchangeWatcher.watchBalance();
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
+
+  async getBalances() {
+    try {
+      const balances = await this.futuresExchange.fetchBalance();
+      return this.mapToBalances(balances);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  mapToBalances(balances: ccxt.Balances) {
+    const { BTC, USDT, datetime } = balances;
+    const finalBalances: BalanceEntity[] = [];
+
+    if (BTC) {
+      finalBalances.push({
+        ...BTC,
+        stockSymbol: 'BTC',
+        // datetime,
+      });
+    }
+
+    if (USDT) {
+      finalBalances.push({
+        ...USDT,
+        stockSymbol: 'USDT',
+        // datetime,
+      });
+    }
+
+    return finalBalances;
+  }
+
+  async getTicker(symbol: SymbolType) {
+    try {
+      return await this.futuresExchange.fetchTicker(symbol);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async createOrder({
     symbol,
     type,
@@ -156,6 +214,10 @@ export class ExchangeClient implements ExchangeInterface {
         undefined,
         {
           positionSide,
+          test:
+            this.configService.get<string>('exchange.env') == 'testing'
+              ? true
+              : false,
         },
       );
 
@@ -179,10 +241,6 @@ export class ExchangeClient implements ExchangeInterface {
     } catch (error) {
       throw error;
     }
-  }
-
-  private mapToOrders(orders: ccxt.Order[]) {
-    return orders.map((order) => this.mapToOrder(order)) as OrderEntity[];
   }
 
   private mapToOrder(order: ccxt.Order): OrderEntity {

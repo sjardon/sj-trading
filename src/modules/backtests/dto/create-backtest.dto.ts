@@ -1,13 +1,13 @@
 import { Type } from 'class-transformer';
-import { CandlestickIntervalType } from '../../candlesticks/intervals/candlestick-interval.type';
-import { CandlestickSymbolType } from '../../candlesticks/symbols/candlestick-symbol.type';
+import { CandlestickIntervalType } from '../../candlesticks/constants/candlestick-interval.enum.constant';
+import { SymbolType } from '../../../common/helpers/services/symbols/constants/symbol.enum.constant';
 
 export class CreateBacktestDto {
   name: string;
 
   strategyId?: string;
 
-  symbol: CandlestickSymbolType;
+  symbol: SymbolType;
 
   interval?: CandlestickIntervalType;
 

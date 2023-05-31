@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TradingSessionsModule } from '../modules/trading-sessions/trading-sessions.module';
-import { AccountsModule } from '../modules/accounts/accounts.module';
 import { OperationsModule } from '../modules/operations/operations.module';
 import { CandlesticksModule } from '../modules/candlesticks/candlesticks.module';
 import { BacktestsModule } from '../modules/backtests/backtests.module';
@@ -22,7 +21,6 @@ import configs from 'src/configs';
   imports: [
     CommonModule,
     TradingSessionsModule,
-    AccountsModule,
     OperationsModule,
     BacktestsModule,
     AdaptersModule,

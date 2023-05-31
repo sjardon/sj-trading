@@ -1,7 +1,3 @@
-export enum CandlestickSymbolType {
-  'BTCUSDT' = 'BTCUSDT',
-}
-
 export enum CandlestickIntervalType {
   '1m' = '1m',
   '3m' = '3m',

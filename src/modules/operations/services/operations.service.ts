@@ -1,17 +1,21 @@
+import { InputCreateOrder } from './../../backtests/backtest-orders/backtest-orders.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SignalAction } from '../../strategies/signals/entities/signal.entity';
 import { Repository } from 'typeorm';
 import { CandlestickEntity } from '../../candlesticks/entities/candlestick.entity';
 import {
+  InputOrderOpen,
   OrdersService,
-  InputCreateOrder,
 } from '../../orders/services/orders.service';
 import { OperationEntity } from '../entities/operation.entity';
 import { TradingSessionEntity } from 'src/modules/trading-sessions/entities/trading-session.entity';
+import { SymbolType } from 'src/common/helpers/services/symbols/constants/symbol.enum.constant';
 
-export type InputCreateOperationBySignalAction = InputCreateOrder & {
+export type InputCreateOperationBySignalAction = {
   tradingSession: TradingSessionEntity;
+  actionToPerform: SignalAction;
+  amount: number;
 };
 
 const mappedActionsToPerform = {
@@ -37,10 +41,10 @@ export class OperationsService {
     lastOperation: OperationEntity,
     inputCreateOperationBySignalAction: InputCreateOperationBySignalAction,
   ) {
-    const { tradingSession, ...inputCreateOrder } =
+    const { tradingSession, actionToPerform, amount } =
       inputCreateOperationBySignalAction;
 
-    const { actionToPerform } = inputCreateOrder;
+    const { symbol } = tradingSession;
 
     this.validateOrderToCreate(lastOperation, actionToPerform);
 
@@ -50,52 +54,54 @@ export class OperationsService {
       return lastOperation;
     }
 
-    const keyOfMethodToPerform = mappedActionsToPerform[actionToPerform];
-    return await this.ordersService[keyOfMethodToPerform]();
-    // this.createOrder();
-    // if (SignalAction.BUY == actionToPerform) {
-    //   lastOperation.openOrder = await this.ordersService.open(
-    //     inputCreateOrder,
-    //     candlestick,
-    //   );
-    // }
+    // sellAmount = buyOrder['amount']
 
-    // if (SignalAction.SELL == actionToPerform) {
-    //   lastOperation.closeOrder = await this.ordersService.close(
-    //     inputCreateOrder,
-    //     candlestick,
-    //   );
-    // }
+    if (SignalAction.BUY == actionToPerform) {
+      lastOperation.openOrder = await this.ordersService.open({
+        amount,
+        symbol,
+      });
+    }
 
-    // if (SignalAction.OPEN_LONG == actionToPerform) {
-    //   lastOperation.openOrder = await this.ordersService.openLong(
-    //     inputCreateOrder,
-    //     candlestick,
-    //   );
-    // }
+    if (SignalAction.SELL == actionToPerform) {
+      const { amount } = lastOperation.openOrder;
+      lastOperation.closeOrder = await this.ordersService.close({
+        symbol,
+        amount,
+      });
+    }
 
-    // if (SignalAction.CLOSE_LONG == actionToPerform) {
-    //   lastOperation.closeOrder = await this.ordersService.closeLong(
-    //     inputCreateOrder,
-    //     candlestick,
-    //   );
-    // }
+    if (SignalAction.OPEN_LONG == actionToPerform) {
+      lastOperation.openOrder = await this.ordersService.openLong({
+        symbol,
+        amount,
+      });
+    }
 
-    // if (SignalAction.OPEN_SHORT == actionToPerform) {
-    //   lastOperation.openOrder = await this.ordersService.openShort(
-    //     inputCreateOrder,
-    //     candlestick,
-    //   );
-    // }
+    if (SignalAction.CLOSE_LONG == actionToPerform) {
+      const { amount } = lastOperation.openOrder;
+      lastOperation.closeOrder = await this.ordersService.closeLong({
+        symbol,
+        amount,
+      });
+    }
 
-    // if (SignalAction.CLOSE_SHORT == actionToPerform) {
-    //   lastOperation.closeOrder = await this.ordersService.closeShort(
-    //     inputCreateOrder,
-    //     candlestick,
-    //   );
-    // }
+    if (SignalAction.OPEN_SHORT == actionToPerform) {
+      lastOperation.openOrder = await this.ordersService.openShort({
+        symbol,
+        amount,
+      });
+    }
 
-    return await this.operationsRepository.save(lastOperation);
+    if (SignalAction.CLOSE_SHORT == actionToPerform) {
+      const { amount } = lastOperation.openOrder;
+      lastOperation.closeOrder = await this.ordersService.closeShort({
+        symbol,
+        amount,
+      });
+    }
+
+    // return await this.backtestOperationsRepository.save(lastOperation);
   }
 
   private createIfNotExists(

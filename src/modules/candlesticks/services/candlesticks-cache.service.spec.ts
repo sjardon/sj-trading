@@ -4,8 +4,8 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import {
   CandlestickIntervalType,
-  CandlestickSymbolType,
-} from '../intervals/candlestick-interval.type';
+  SymbolType,
+} from '../constants/candlestick-interval.enum.constant';
 
 describe('CandlesticksCacheService', () => {
   let service: CandlesticksCacheService;
@@ -34,7 +34,7 @@ describe('CandlesticksCacheService', () => {
 
   describe('setWatched', () => {
     it('Key should be {symbol}-{interval}', async () => {
-      const symbol = CandlestickSymbolType.BTCUSDT;
+      const symbol = SymbolType.BTCUSDT;
       const interval = CandlestickIntervalType['1h'];
 
       jest.spyOn(cacheService, 'set');
@@ -45,7 +45,7 @@ describe('CandlesticksCacheService', () => {
 
   describe('Get', () => {
     it('Key should be {symbol}-{interval}', async () => {
-      const symbol = CandlestickSymbolType.BTCUSDT;
+      const symbol = SymbolType.BTCUSDT;
       const interval = CandlestickIntervalType['1h'];
 
       cacheService.get = jest.fn().mockImplementation((key) => {
@@ -64,7 +64,7 @@ describe('CandlesticksCacheService', () => {
   describe('Update', () => {
     // TODO: change this to a fake candlestick
     // TODO: Add fake candlesticks generator
-    // const symbol = CandlestickSymbolType.BTCUSDT;
+    // const symbol = SymbolType.BTCUSDT;
     // const interval = CandlestickIntervalType['1h'];
     // cacheService.get = jest
     //   .fn()

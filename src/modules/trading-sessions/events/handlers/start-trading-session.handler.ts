@@ -20,6 +20,7 @@ import { ReferenceVisitor } from 'src/common/visitors/reference.visitor';
 import { OperationEntity } from 'src/modules/operations/entities/operation.entity';
 import { CreateIndicatorExecutorDto } from 'src/modules/indicators/dto/create-indicator-executor.dto';
 import { StrategyEntity } from 'src/modules/strategies/entities/strategy.entity';
+import { BalancesService } from 'src/modules/balances/services/balances.service';
 
 @EventsHandler(StartTradingSessionEvent)
 export class StartTradingSessionHandler
@@ -72,6 +73,8 @@ export class StartTradingSessionHandler
       const indicatorExecutors = this.getIndicatorExecutors(
         strategy.indicators,
       );
+
+      // Set leverage -> global
 
       //  Get resources:
       //   - timeframes: candlesticks and indicators,

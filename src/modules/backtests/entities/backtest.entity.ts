@@ -1,5 +1,5 @@
-import { CandlestickIntervalType } from '../../candlesticks/intervals/candlestick-interval.type';
-import { CandlestickSymbolType } from '../../candlesticks/symbols/candlestick-symbol.type';
+import { CandlestickIntervalType } from '../../candlesticks/constants/candlestick-interval.enum.constant';
+import { SymbolType } from '../../../common/helpers/services/symbols/constants/symbol.enum.constant';
 import {
   BaseEntity,
   Column,
@@ -23,7 +23,7 @@ export class BacktestEntity extends BaseEntity {
   strategy: StrategyEntity; // Or strategy: { id }
 
   @Column()
-  symbol: CandlestickSymbolType;
+  symbol: SymbolType;
 
   @Column()
   interval: CandlestickIntervalType;

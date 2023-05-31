@@ -1,14 +1,14 @@
-import { CandlestickSymbolType } from 'src/modules/candlesticks/intervals/candlestick-interval.type';
+import { SymbolType } from '../../../common/helpers/services/symbols/constants/symbol.enum.constant';
 import {
   OrderPositionSide,
   OrderSide,
   OrderType,
 } from '../constants/orders.enum.constant';
 
-export type CreateOrderDto = {
-  symbol: CandlestickSymbolType;
+export class CreateOrderDto {
+  symbol: SymbolType;
   type?: OrderType;
   side: OrderSide;
   positionSide?: OrderPositionSide;
   amount: number;
-};
+}

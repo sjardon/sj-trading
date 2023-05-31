@@ -1,3 +1,4 @@
+import { RiskAnalysisService } from './../risk-analysis/services/risk-analysis.service';
 import { Module } from '@nestjs/common';
 import { TradingSessionsService } from './services/trading-sessions.service';
 import { TradingSessionsController } from './controllers/trading-sessions.controller';
@@ -13,6 +14,7 @@ import { CandlesticksModule } from '../candlesticks/candlesticks.module';
 import { TickTradingSessionHandler } from './commands/handlers/tick-trading-session.handler';
 import { AnalyzersModule } from '../analyzers/analyzers.module';
 import { OperationsModule } from '../operations/operations.module';
+import { BalancesModule } from '../balances/balances.module';
 
 @Module({
   controllers: [TradingSessionsController],
@@ -28,6 +30,7 @@ import { OperationsModule } from '../operations/operations.module';
     CandlesticksModule,
     StrategiesModule,
     AnalyzersModule,
+    RiskAnalysisService,
     OperationsModule,
     HelpersModule,
   ],

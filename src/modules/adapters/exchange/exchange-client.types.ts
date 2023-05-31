@@ -1,4 +1,4 @@
-import { CandlestickSymbolType } from '../../candlesticks/intervals/candlestick-interval.type';
+import { SymbolType } from '../../../common/helpers/services/symbols/constants/symbol.enum.constant';
 import {
   OrderPositionSide,
   OrderSide,
@@ -11,7 +11,7 @@ export enum ExchangeClientOrderSide {
 }
 
 export type InputExchangeClientCreateOrder = {
-  symbol: CandlestickSymbolType;
+  symbol: SymbolType;
   type: OrderType;
   side: ExchangeClientOrderSide;
   positionSide: OrderPositionSide;
@@ -20,5 +20,5 @@ export type InputExchangeClientCreateOrder = {
 
 export type InputExchangeClientCancelOrder = {
   exchangeOrderId: string;
-  symbol: CandlestickSymbolType;
+  symbol: SymbolType;
 };

@@ -11,9 +11,9 @@ import { CreateBacktestDto } from '../dto/create-backtest.dto';
 import { BacktestEntity } from '../entities/backtest.entity';
 import { BacktestTimeframesService } from '../backtest-timeframe/backtest-timeframes.service';
 
-import { CandlestickIntervalType } from '../../candlesticks/intervals/candlestick-interval.type';
+import { CandlestickIntervalType } from '../../candlesticks/constants/candlestick-interval.enum.constant';
 import { CandlesticksService } from '../../candlesticks/services/candlesticks.service';
-import { CandlestickSymbolType } from '../../candlesticks/symbols/candlestick-symbol.type';
+import { SymbolType } from '../../../common/helpers/services/symbols/constants/symbol.enum.constant';
 import { CandlestickEntity } from '../../candlesticks/entities/candlestick.entity';
 
 import { AnalyzersService } from '../../analyzers/analyzers.service';
@@ -29,7 +29,7 @@ import { IndicatorEntity } from '../../indicators/entities/indicator.entity';
 import { StatisticsService } from '../../statistics/services/statistics.service';
 
 export type InputGetCandlestickSample = {
-  symbol: CandlestickSymbolType;
+  symbol: SymbolType;
   interval: CandlestickIntervalType;
   startTime: number;
   endTime: number;
