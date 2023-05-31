@@ -15,16 +15,7 @@ import { SymbolType } from 'src/common/helpers/services/symbols/constants/symbol
 export type InputCreateOperationBySignalAction = {
   tradingSession: TradingSessionEntity;
   actionToPerform: SignalAction;
-  amount: number;
-};
-
-const mappedActionsToPerform = {
-  [SignalAction.BUY]: 'open',
-  [SignalAction.SELL]: 'close',
-  [SignalAction.OPEN_LONG]: 'openLong',
-  [SignalAction.CLOSE_LONG]: 'closeLong',
-  [SignalAction.OPEN_SHORT]: 'openShort',
-  [SignalAction.CLOSE_SHORT]: 'closeShort',
+  amount?: number;
 };
 
 @Injectable()
@@ -53,8 +44,6 @@ export class OperationsService {
     if (SignalAction.NOTHING == actionToPerform) {
       return lastOperation;
     }
-
-    // sellAmount = buyOrder['amount']
 
     if (SignalAction.BUY == actionToPerform) {
       lastOperation.openOrder = await this.ordersService.open({
@@ -101,7 +90,7 @@ export class OperationsService {
       });
     }
 
-    // return await this.backtestOperationsRepository.save(lastOperation);
+    return await this.operationsRepository.save(lastOperation);
   }
 
   private createIfNotExists(

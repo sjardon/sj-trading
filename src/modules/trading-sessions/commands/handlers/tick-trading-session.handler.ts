@@ -66,31 +66,32 @@ export class TickTradingSessionHandler
       );
 
       this.logger.log(`Running operation as ${actionToPerform}`);
-      // evaluate by risk-analysis
-      // Get amount
 
-      if (
-        [
-          SignalAction.BUY,
-          SignalAction.OPEN_LONG,
-          SignalAction.OPEN_SHORT,
-        ].includes(actionToPerform)
-      ) {
+      if (this.isOpenAction(actionToPerform)) {
         if (!this.riskAnalysisService.analyze(symbol)) {
           return;
         }
 
         const amount = await this.riskAnalysisService.getAmount(symbol);
+
+        this.lastOperation = await this.operationsService.createBySignalAction(
+          this.lastOperation,
+          {
+            tradingSession,
+            actionToPerform,
+            amount,
+          },
+        );
       }
 
-      if (
-        [
-          SignalAction.SELL,
-          SignalAction.CLOSE_LONG,
-          SignalAction.CLOSE_SHORT,
-        ].includes(actionToPerform)
-      ) {
-        this.executeSellAction();
+      if (this.isCloseAction(actionToPerform)) {
+        this.lastOperation = await this.operationsService.createBySignalAction(
+          this.lastOperation,
+          {
+            tradingSession,
+            actionToPerform,
+          },
+        );
       }
 
       // this.logger.log(`Operation done: ${this.operation.id}`);
@@ -100,7 +101,19 @@ export class TickTradingSessionHandler
     }
   }
 
-  executeSellAction() {
-    throw new Error('Method not implemented.');
+  isOpenAction(actionToPerform: SignalAction) {
+    return [
+      SignalAction.BUY,
+      SignalAction.OPEN_LONG,
+      SignalAction.OPEN_SHORT,
+    ].includes(actionToPerform);
+  }
+
+  isCloseAction(actionToPerform: SignalAction) {
+    return [
+      SignalAction.SELL,
+      SignalAction.CLOSE_LONG,
+      SignalAction.CLOSE_SHORT,
+    ].includes(actionToPerform);
   }
 }
