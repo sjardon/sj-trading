@@ -4,6 +4,6 @@ import { SymbolsService } from './services/symbols/symbols.service';
 
 @Module({
   providers: [HelperErrorService, SymbolsService],
-  exports: [HelperErrorService],
+  exports: [HelperErrorService, SymbolsService],
 })
 export class HelpersModule {}

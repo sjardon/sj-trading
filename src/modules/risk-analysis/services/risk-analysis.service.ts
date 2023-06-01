@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { BalancesService } from 'src/modules/balances/services/balances.service';
 import { SymbolType } from 'src/common/helpers/services/symbols/constants/symbol.enum.constant';
 import { MarketsService } from '../../markets/services/markets.service';
@@ -12,6 +12,8 @@ export type InputRiskAnalysisAnalyze = {
 @Injectable()
 export class RiskAnalysisService {
   private startingBalance: BalanceEntity;
+
+  private readonly logger = new Logger(RiskAnalysisService.name);
 
   constructor(
     private symbolsService: SymbolsService,
@@ -50,6 +52,6 @@ export class RiskAnalysisService {
     const currentPrice = await this.marketsService.getPrice(symbol);
     const { free: accountAmount } = currentBalance;
 
-    return (accountAmount * 0.02) / currentPrice;
+    return (accountAmount * 0.3) / currentPrice;
   }
 }

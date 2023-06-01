@@ -25,10 +25,6 @@ export class ExchangeClient implements ExchangeInterface {
   private futuresExchange: ccxt.binanceusdm;
 
   constructor(private readonly configService: ConfigService) {
-    console.log(
-      configService.get<string>('exchange.binance.apiKey'),
-      configService.get<string>('exchange.binance.secretKey'),
-    );
     this.futuresExchangeWatcher = new ccxt.pro.binanceusdm({
       apiKey: configService.get<string>('exchange.binance.apiKey'),
       secret: configService.get<string>('exchange.binance.secretKey'),
@@ -40,7 +36,6 @@ export class ExchangeClient implements ExchangeInterface {
       // newUpdates: true,
     });
 
-    // private exchange = new ccxt.binance();
     this.futuresExchange = new ccxt.binanceusdm({
       apiKey: configService.get<string>('exchange.binance.apiKey'),
       secret: configService.get<string>('exchange.binance.secretKey'),
@@ -92,7 +87,7 @@ export class ExchangeClient implements ExchangeInterface {
   }: InputGetCandlestick): Promise<CandlestickEntity[]> {
     try {
       startTime = startTime ? +startTime : undefined;
-      console.log(startTime);
+
       const OHCLVs = await this.futuresExchange.fetchOHLCV(
         symbol,
         interval,
@@ -102,6 +97,7 @@ export class ExchangeClient implements ExchangeInterface {
 
       return this.mapToCandlesticks(OHCLVs, symbol, interval);
     } catch (thrownError) {
+      console.log(thrownError);
       throw new Error('Exchange get futures candlesticks error');
     }
   }
@@ -190,9 +186,9 @@ export class ExchangeClient implements ExchangeInterface {
     return finalBalances;
   }
 
-  async getTicker(symbol: SymbolType) {
+  async getOrderBook(symbol: SymbolType) {
     try {
-      return await this.futuresExchange.fetchTicker(symbol);
+      return await this.futuresExchange.fetchOrderBook(symbol);
     } catch (error) {
       throw error;
     }
@@ -204,26 +200,66 @@ export class ExchangeClient implements ExchangeInterface {
     side,
     positionSide,
     amount,
+    stopLoss,
   }: InputExchangeClientCreateOrder): Promise<OrderEntity> {
     try {
+      const params = {
+        positionSide,
+        test:
+          this.configService.get<string>('exchange.env') == 'testing'
+            ? true
+            : false,
+      };
+
+      // if (stopLoss) {
+      //   params['stopLossPrice'] = this.amountToPrecision(symbol, stopLoss);
+      // }
+
+      amount = this.amountToPrecision(symbol, amount);
       const createdOrder = await this.futuresExchange.createOrder(
         symbol,
         type,
         side,
         amount,
         undefined,
-        {
-          positionSide,
-          test:
-            this.configService.get<string>('exchange.env') == 'testing'
-              ? true
-              : false,
-        },
+        params,
       );
 
       return this.mapToOrder(createdOrder);
     } catch (error) {
       throw error;
+    }
+  }
+
+  amountToPrecision(symbol: SymbolType, amount: number) {
+    const market = this.futuresExchange.market(symbol);
+    return +amount.toFixed(market.precision.amount);
+  }
+
+  validateCreateOrderAmount(symbol: SymbolType, amount: number) {
+    // Order amount >= limits['amount']['min']
+    // Order amount <= limits['amount']['max']
+    const market = this.futuresExchange.market(symbol);
+    if (amount < market.limits.amount.min) {
+      throw new Error(
+        `Create order error: amount [${amount}] must be greater than [${market.limits.amount.min}]`,
+      );
+    }
+    if (amount > market.limits.amount.max) {
+      throw new Error(
+        `Create order error: amount [${amount}] must be less than [${market.limits.amount.min}]`,
+      );
+    }
+  }
+
+  validateCreateOrderAmountPrecision(symbol: SymbolType, amount: number) {
+    const market = this.futuresExchange.market(symbol);
+
+    let decimalCount = amount.toString().split('.')[1]?.length || 0;
+    if (decimalCount > market.precision.amount) {
+      throw new Error(
+        `Create order error: amount precision [${amount}] must be less than [${market.precision.amount}]`,
+      );
     }
   }
 

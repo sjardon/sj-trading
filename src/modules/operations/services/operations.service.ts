@@ -16,6 +16,8 @@ export type InputCreateOperationBySignalAction = {
   tradingSession: TradingSessionEntity;
   actionToPerform: SignalAction;
   amount?: number;
+  stopLoss?: number;
+  takeProfit?: number;
 };
 
 @Injectable()
@@ -32,7 +34,7 @@ export class OperationsService {
     lastOperation: OperationEntity,
     inputCreateOperationBySignalAction: InputCreateOperationBySignalAction,
   ) {
-    const { tradingSession, actionToPerform, amount } =
+    const { tradingSession, actionToPerform, amount, stopLoss } =
       inputCreateOperationBySignalAction;
 
     const { symbol } = tradingSession;
@@ -41,14 +43,18 @@ export class OperationsService {
 
     lastOperation = this.createIfNotExists(lastOperation, tradingSession);
 
+    this.logger.log(`Operation ${amount} ${stopLoss}`);
+
     if (SignalAction.NOTHING == actionToPerform) {
       return lastOperation;
     }
 
     if (SignalAction.BUY == actionToPerform) {
+      const stopLossPrice = amount * (1 - stopLoss);
       lastOperation.openOrder = await this.ordersService.open({
         amount,
         symbol,
+        stopLoss: stopLossPrice,
       });
     }
 
@@ -61,9 +67,11 @@ export class OperationsService {
     }
 
     if (SignalAction.OPEN_LONG == actionToPerform) {
+      const stopLossPrice = amount * (1 - stopLoss);
       lastOperation.openOrder = await this.ordersService.openLong({
         symbol,
         amount,
+        stopLoss: stopLossPrice,
       });
     }
 
@@ -76,9 +84,11 @@ export class OperationsService {
     }
 
     if (SignalAction.OPEN_SHORT == actionToPerform) {
+      const stopLossPrice = amount * (1 + stopLoss);
       lastOperation.openOrder = await this.ordersService.openShort({
         symbol,
         amount,
+        stopLoss: stopLossPrice,
       });
     }
 

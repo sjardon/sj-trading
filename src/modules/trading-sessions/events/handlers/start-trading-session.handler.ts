@@ -74,7 +74,7 @@ export class StartTradingSessionHandler
         strategy.indicators,
       );
 
-      // Set leverage -> global
+      // TODO: Set leverage -> global
 
       //  Get resources:
       //   - timeframes: candlesticks and indicators,

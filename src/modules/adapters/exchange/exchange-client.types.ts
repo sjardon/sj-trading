@@ -16,6 +16,7 @@ export type InputExchangeClientCreateOrder = {
   side: ExchangeClientOrderSide;
   positionSide: OrderPositionSide;
   amount: number;
+  stopLoss?: number;
 };
 
 export type InputExchangeClientCancelOrder = {

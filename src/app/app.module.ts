@@ -16,6 +16,7 @@ import { AuthModule } from '../modules/auth/auth.module';
 import { CommonModule } from 'src/common/common.module';
 import { ConfigModule } from '@nestjs/config';
 import configs from 'src/configs';
+import { RiskAnalysisModule } from 'src/modules/risk-analysis/risk-analysis.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import configs from 'src/configs';
     AdaptersModule,
     StrategiesModule,
     AnalyzersModule,
+    RiskAnalysisModule,
     CandlesticksModule,
     IndicatorsModule,
     StatisticsModule,

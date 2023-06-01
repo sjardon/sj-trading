@@ -11,4 +11,5 @@ export class CreateOrderDto {
   side: OrderSide;
   positionSide?: OrderPositionSide;
   amount: number;
+  stopLoss?: number;
 }

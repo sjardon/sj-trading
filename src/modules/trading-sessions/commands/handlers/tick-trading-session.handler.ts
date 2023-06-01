@@ -6,7 +6,6 @@ import { SignalAction } from 'src/modules/strategies/signals/entities/signal.ent
 import { AnalyzersService } from 'src/modules/analyzers/analyzers.service';
 import { ReferenceVisitor } from 'src/common/visitors/reference.visitor';
 import { OperationsService } from 'src/modules/operations/services/operations.service';
-import { BalancesService } from 'src/modules/balances/services/balances.service';
 import { OperationEntity } from 'src/modules/operations/entities/operation.entity';
 
 @CommandHandler(TickTradingSessionCommand)
@@ -20,7 +19,6 @@ export class TickTradingSessionHandler
     private analyzersService: AnalyzersService,
     private riskAnalysisService: RiskAnalysisService,
     private operationsService: OperationsService,
-    private balancesService: BalancesService,
   ) {}
 
   async execute(command: TickTradingSessionCommand) {
@@ -34,20 +32,18 @@ export class TickTradingSessionHandler
       indicatorExecutors,
     } = command;
 
-    const { takeProfit, stopLoss } = strategy;
+    let { takeProfit, stopLoss } = strategy;
+
     const { symbol } = tradingSession;
 
     try {
       // Analyze current data
 
-      const balances = await this.balancesService.get();
-      console.log('balance', balances);
-
       const indicators = indicatorExecutors.map((indicatorExecutor) =>
         indicatorExecutor.exec(candlesticks),
       );
 
-      // TODO: Save timeframes in an event.
+      // TODO: Save timeframes in event.
 
       referenceContext.addReference(
         new ReferenceVisitor({
@@ -60,12 +56,20 @@ export class TickTradingSessionHandler
         }),
       );
 
+      // TODO: IMPORTANT FEATURE - add actionExecutorModule to handle differents actions and validate it.
+      // On this way I can create a lot of actions like MODIFY_STOP_LOSS, MODIFY_TAKE_PROFIT, etc.
+      // Also, operations will handle not only open and close orders, but a set of orders like take profits, stop loss, more than one open order and so on.
+
       const actionToPerform: SignalAction = this.analyzersService.analyze(
         signals,
         operation,
       );
 
-      this.logger.log(`Running operation as ${actionToPerform}`);
+      if (actionToPerform == SignalAction.NOTHING) {
+        return;
+      }
+
+      this.logger.log(`Running action: ${actionToPerform}`);
 
       if (this.isOpenAction(actionToPerform)) {
         if (!this.riskAnalysisService.analyze(symbol)) {
@@ -80,6 +84,7 @@ export class TickTradingSessionHandler
             tradingSession,
             actionToPerform,
             amount,
+            stopLoss,
           },
         );
       }
@@ -93,8 +98,6 @@ export class TickTradingSessionHandler
           },
         );
       }
-
-      // this.logger.log(`Operation done: ${this.operation.id}`);
     } catch (error) {
       console.log(error);
       this.logger.log(`Error ${TickTradingSessionHandler.name}`);
