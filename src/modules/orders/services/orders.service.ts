@@ -69,8 +69,10 @@ export class OrdersService {
   async openShort({ symbol, amount, stopLoss }: InputOrderOpen) {
     return await this.create({
       symbol,
-      side: OrderSide.BUY,
+      // side: OrderSide.BUY,
       positionSide: OrderPositionSide.SHORT,
+      side: OrderSide.SELL,
+      // positionSide: OrderPositionSide.LONG,
       amount,
       stopLoss,
     });
@@ -79,7 +81,9 @@ export class OrdersService {
   async closeShort({ symbol, amount }: InputOrderOpen) {
     return await this.create({
       symbol,
-      side: OrderSide.SELL,
+      side: OrderSide.BUY,
+      // positionSide: OrderPositionSide.LONG,
+      // side: OrderSide.SELL,
       positionSide: OrderPositionSide.SHORT,
       amount,
     });
@@ -135,7 +139,9 @@ export class OrdersService {
 
   formatInputOrder({ symbol, amount, stopLoss }) {
     amount = this.exchangeClient.amountToPrecision(symbol, amount);
-    stopLoss = this.exchangeClient.amountToPrecision(symbol, stopLoss);
+    if (stopLoss) {
+      stopLoss = this.exchangeClient.amountToPrecision(symbol, stopLoss);
+    }
     return { amount, stopLoss };
   }
 
@@ -150,6 +156,8 @@ export class OrdersService {
     // Precision of price must be <= precision['price']
     this.exchangeClient.validateCreateOrderAmount(symbol, amount);
     this.exchangeClient.validateCreateOrderAmountPrecision(symbol, amount);
-    this.exchangeClient.validateCreateOrderAmountPrecision(symbol, stopLoss);
+    if (stopLoss) {
+      this.exchangeClient.validateCreateOrderAmountPrecision(symbol, stopLoss);
+    }
   }
 }

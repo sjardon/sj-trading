@@ -62,7 +62,7 @@ export class TickTradingSessionHandler
 
       const actionToPerform: SignalAction = this.analyzersService.analyze(
         signals,
-        operation,
+        this.lastOperation,
       );
 
       if (actionToPerform == SignalAction.NOTHING) {

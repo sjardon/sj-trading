@@ -91,11 +91,13 @@ export class StartTradingSessionHandler
             lookback: 1000,
           });
 
-          this.commandBus.execute(
+          await this.commandBus.execute(
             new TickTradingSessionCommand(
               tradingSession,
               signals,
               candlesticks,
+
+              // TODO: Move from here this.operation -> responsability of TickTradingSession
               this.operation,
               strategy,
               this.referenceContextVisitor,

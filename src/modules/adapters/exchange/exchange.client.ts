@@ -25,58 +25,22 @@ export class ExchangeClient implements ExchangeInterface {
   private futuresExchange: ccxt.binanceusdm;
 
   constructor(private readonly configService: ConfigService) {
-    this.futuresExchangeWatcher = new ccxt.pro.binanceusdm({
-      apiKey: configService.get<string>('exchange.binance.apiKey'),
-      secret: configService.get<string>('exchange.binance.secretKey'),
-      // options: {
-      //   tradesLimit: 1000,
-      //   OHLCVLimit: 1000,
-      //   ordersLimit: 1000,
-      // },
-      // newUpdates: true,
-    });
+    let apiKey = configService.get<string>('exchange.binance.apiKey');
+    let secret = configService.get<string>('exchange.binance.secretKey');
 
-    this.futuresExchange = new ccxt.binanceusdm({
-      apiKey: configService.get<string>('exchange.binance.apiKey'),
-      secret: configService.get<string>('exchange.binance.secretKey'),
-      // options: { defaultType: 'future' },
-    });
+    if (this.configService.get<string>('exchange.env') == 'testing') {
+      apiKey = configService.get<string>('exchange.testnetBinance.apiKey');
+      secret = configService.get<string>('exchange.testnetBinance.secretKey');
+    }
+
+    this.futuresExchangeWatcher = new ccxt.pro.binanceusdm({ apiKey, secret });
+    this.futuresExchange = new ccxt.binanceusdm({ apiKey, secret });
+
+    if (this.configService.get<string>('exchange.env') == 'testing') {
+      this.futuresExchangeWatcher.setSandboxMode(true);
+      this.futuresExchange.setSandboxMode(true);
+    }
   }
-
-  // async getCandlesticks({
-  //   symbol,
-  //   interval,
-  //   lookback,
-  //   startTime,
-  //   endTime,
-  // }: InputGetCandlestick): Promise<CandlestickEntity[]> {
-  //   try {
-  //     const candlesticks = await this.exchange.fetchOHLCV(
-  //       symbol,
-  //       interval,
-  //       +startTime,
-  //       lookback,
-  //     );
-
-  //     return candlesticks.map((candlestick) => {
-  //       const [timestamp, open, high, low, close, volume] = candlestick;
-
-  //       return {
-  //         symbol,
-  //         open: +open,
-  //         close: +close,
-  //         high: +high,
-  //         low: +low,
-  //         openTime: timestamp,
-  //         closeTime: timestamp,
-  //         volume: +volume,
-  //         interval,
-  //       } as CandlestickEntity;
-  //     });
-  //   } catch (thrownError) {
-  //     throw new Error('Exchange get candlesticks error');
-  //   }
-  // }
 
   async futuresGetCandlesticks({
     symbol,
@@ -205,10 +169,6 @@ export class ExchangeClient implements ExchangeInterface {
     try {
       const params = {
         positionSide,
-        test:
-          this.configService.get<string>('exchange.env') == 'testing'
-            ? true
-            : false,
       };
 
       // if (stopLoss) {
@@ -224,7 +184,6 @@ export class ExchangeClient implements ExchangeInterface {
         undefined,
         params,
       );
-
       return this.mapToOrder(createdOrder);
     } catch (error) {
       throw error;
@@ -282,6 +241,7 @@ export class ExchangeClient implements ExchangeInterface {
   private mapToOrder(order: ccxt.Order): OrderEntity {
     const {
       id: exchangeOrderId,
+      timestamp,
       datetime,
       status: exchangeOrderStatus,
       symbol,
@@ -292,9 +252,11 @@ export class ExchangeClient implements ExchangeInterface {
       info,
     } = order;
 
-    const { positionSide } = info;
+    const { positionSide, updatetime } = info;
     const side = exchangeSide == 'buy' ? OrderSide.BUY : OrderSide.SELL;
-    const transactTime = new Date(datetime).toISOString();
+
+    const orderTime = timestamp | Date.now();
+    const transactTime = new Date(orderTime).toISOString();
 
     return {
       exchangeOrderId,
@@ -500,5 +462,40 @@ export class ExchangeClient implements ExchangeInterface {
   //   //   throw thrownError;
   //   // }
   //   throw new Error('Not implemented');
+  // }
+
+  // async getCandlesticks({
+  //   symbol,
+  //   interval,
+  //   lookback,
+  //   startTime,
+  //   endTime,
+  // }: InputGetCandlestick): Promise<CandlestickEntity[]> {
+  //   try {
+  //     const candlesticks = await this.exchange.fetchOHLCV(
+  //       symbol,
+  //       interval,
+  //       +startTime,
+  //       lookback,
+  //     );
+
+  //     return candlesticks.map((candlestick) => {
+  //       const [timestamp, open, high, low, close, volume] = candlestick;
+
+  //       return {
+  //         symbol,
+  //         open: +open,
+  //         close: +close,
+  //         high: +high,
+  //         low: +low,
+  //         openTime: timestamp,
+  //         closeTime: timestamp,
+  //         volume: +volume,
+  //         interval,
+  //       } as CandlestickEntity;
+  //     });
+  //   } catch (thrownError) {
+  //     throw new Error('Exchange get candlesticks error');
+  //   }
   // }
 }
