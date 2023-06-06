@@ -75,7 +75,7 @@ export class CreateTradingSessionHandler
         symbol,
         interval,
         status: In([
-          ENUM_TRADING_SESSION_STATUS.TO_START,
+          // ENUM_TRADING_SESSION_STATUS.TO_START,
           ENUM_TRADING_SESSION_STATUS.STARTING,
           ENUM_TRADING_SESSION_STATUS.IN_PROGRESS,
         ]),
@@ -94,7 +94,7 @@ export class CreateTradingSessionHandler
     try {
       const count = await this.tradingSessionRepository.countBy({
         status: In([
-          ENUM_TRADING_SESSION_STATUS.TO_START,
+          // ENUM_TRADING_SESSION_STATUS.TO_START,
           ENUM_TRADING_SESSION_STATUS.STARTING,
           ENUM_TRADING_SESSION_STATUS.IN_PROGRESS,
         ]),

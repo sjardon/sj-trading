@@ -15,13 +15,19 @@ import { AnalyzersModule } from '../analyzers/analyzers.module';
 import { OperationsModule } from '../operations/operations.module';
 import { BalancesModule } from '../balances/balances.module';
 import { RiskAnalysisModule } from '../risk-analysis/risk-analysis.module';
+import { TradingSessionsStatusService } from './services/trading-sessions-status.service';
+import { UpdateTradingSessionHandler } from './commands/handlers/update-trading-session.handler';
+import { UpdatedTradingSessionHandler } from './events/handlers/update-trading-session.event';
 
 @Module({
   controllers: [TradingSessionsController],
   providers: [
     TradingSessionsService,
-    StartTradingSessionHandler,
+    TradingSessionsStatusService,
     CreateTradingSessionHandler,
+    UpdateTradingSessionHandler,
+    StartTradingSessionHandler,
+    UpdatedTradingSessionHandler,
     TickTradingSessionHandler,
   ],
   imports: [

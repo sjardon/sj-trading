@@ -11,7 +11,6 @@ export class TickTradingSessionCommand {
     public tradingSession: TradingSessionEntity,
     public signals: SignalEntity[],
     public candlesticks: CandlestickEntity[],
-    public operation: OperationEntity,
     public strategy: StrategyEntity,
     public referenceContext: ReferenceContext,
     public indicatorExecutors: IndicatorExecutorInterface[],
