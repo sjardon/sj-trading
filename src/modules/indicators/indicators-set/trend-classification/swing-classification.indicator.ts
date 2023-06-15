@@ -33,16 +33,19 @@ export class SwingClassificationExecutor implements IndicatorExecutorInterface {
 
     const points: PointType[] = [];
 
-    for (const i in candlesticks) {
-      if (isHight(candlesticks, +i, 2, 2)) {
+    const highs = candlesticks.map((candlestick) => candlestick.high);
+    const lows = candlesticks.map((candlestick) => candlestick.low);
+
+    for (const i in highs) {
+      if (isHight(highs, +i, 2, 2)) {
         points.push({
           type: 'high',
-          value: candlesticks[i].high,
+          value: highs[i],
         });
-      } else if (isLow(candlesticks, +i, 2, 2)) {
+      } else if (isLow(lows, +i, 2, 2)) {
         points.push({
           type: 'low',
-          value: candlesticks[i].low,
+          value: lows[i],
         });
       }
     }

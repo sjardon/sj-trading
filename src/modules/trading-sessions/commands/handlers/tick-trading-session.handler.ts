@@ -2,11 +2,11 @@ import { RiskAnalysisService } from './../../../risk-analysis/services/risk-anal
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { TickTradingSessionCommand } from '../impl/tick-trading-session.command';
 import { Logger } from '@nestjs/common';
-import { SignalAction } from 'src/modules/strategies/signals/entities/signal.entity';
-import { AnalyzersService } from 'src/modules/analyzers/analyzers.service';
-import { ReferenceVisitor } from 'src/common/visitors/reference.visitor';
-import { OperationsService } from 'src/modules/operations/services/operations.service';
-import { OperationEntity } from 'src/modules/operations/entities/operation.entity';
+import { SignalAction } from '../../../strategies/signals/entities/signal.entity';
+import { AnalyzersService } from '../../../analyzers/analyzers.service';
+import { ReferenceVisitor } from '../../../../common/visitors/reference.visitor';
+import { OperationsService } from '../../../operations/services/operations.service';
+import { OperationEntity } from '../../../operations/entities/operation.entity';
 
 @CommandHandler(TickTradingSessionCommand)
 export class TickTradingSessionHandler

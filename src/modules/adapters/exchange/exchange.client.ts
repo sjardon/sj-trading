@@ -16,29 +16,31 @@ import {
   InputExchangeClientCancelOrder,
   InputExchangeClientCreateOrder,
 } from './exchange-client.types';
-import { OrderSide } from 'src/modules/orders/constants/orders.enum.constant';
-import { BalanceEntity } from 'src/modules/balances/entities/balance.entity';
+import { OrderSide } from '../../orders/constants/orders.enum.constant';
+import { BalanceEntity } from '../../balances/entities/balance.entity';
 
 @Injectable()
 export class ExchangeClient implements ExchangeInterface {
   private futuresExchangeWatcher: ccxt.pro.binanceusdm;
-  private futuresExchange: ccxt.binanceusdm;
+  private futuresExchange: ccxt.binance;
 
   constructor(private readonly configService: ConfigService) {
     let apiKey = configService.get<string>('exchange.binance.apiKey');
     let secret = configService.get<string>('exchange.binance.secretKey');
 
     if (this.configService.get<string>('exchange.env') == 'testing') {
-      apiKey = configService.get<string>('exchange.testnetBinance.apiKey');
-      secret = configService.get<string>('exchange.testnetBinance.secretKey');
+      // apiKey = configService.get<string>('exchange.testnetBinance.apiKey');
+      // secret = configService.get<string>('exchange.testnetBinance.secretKey');
     }
 
-    this.futuresExchangeWatcher = new ccxt.pro.binanceusdm({ apiKey, secret });
-    this.futuresExchange = new ccxt.binanceusdm({ apiKey, secret });
+    this.futuresExchangeWatcher = new ccxt.pro.binanceusdm();
+    // { apiKey, secret }
+    this.futuresExchange = new ccxt.binance();
+    // { apiKey, secret }
 
     if (this.configService.get<string>('exchange.env') == 'testing') {
-      this.futuresExchangeWatcher.setSandboxMode(true);
-      this.futuresExchange.setSandboxMode(true);
+      // this.futuresExchangeWatcher.setSandboxMode(true);
+      // this.futuresExchange.setSandboxMode(true);
     }
   }
 

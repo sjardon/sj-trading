@@ -105,6 +105,12 @@ export class StatisticsController {
           ),
           values: shortOperations.map((op) => op.closeOrder.amount),
         },
+        SMA_5: {
+          time,
+          values: indicators
+            .filter((indicator) => indicator.name == 'SMA_5')
+            .map((indicator) => indicator.value),
+        },
         SMA_20: {
           time,
           values: indicators

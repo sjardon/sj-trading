@@ -6,6 +6,7 @@ import {
   // IndicatorEntityConfiguration,
 } from '../../entities/indicator.entity';
 import { IndicatorExecutorInterface } from '../indicator-executor.interface';
+import { SMA } from '../../indicators-functions/sma.util';
 
 export class CurrentSupportResistanceExecutor
   implements IndicatorExecutorInterface
@@ -72,34 +73,43 @@ export class CurrentSupportResistanceExecutor
   getTaggedLevels(candlesticks: CandlestickEntity[]) {
     let levels: number[] = [];
 
-    const currentClose = candlesticks[candlesticks.length - 1].close;
+    const {
+      close: currentClose,
+      high: currentHigh,
+      low: currentLow,
+    } = candlesticks[candlesticks.length - 1];
 
-    for (const i in candlesticks) {
-      if (isLow(candlesticks, +i, 2, 2)) {
-        levels.push(candlesticks[i].low);
+    const lowsSma = this.getLowsSma(candlesticks);
+
+    const highsSma = this.getHighsSma(candlesticks);
+
+    for (const i in highsSma) {
+      if (isLow(lowsSma, +i, 2, 2)) {
+        levels.push(lowsSma[i]);
       }
 
-      if (isHight(candlesticks, +i, 2, 2)) {
-        levels.push(candlesticks[i].high);
+      if (isHight(highsSma, +i, 2, 2)) {
+        levels.push(highsSma[i]);
       }
+    }
+
+    let currentLevel = -1;
+
+    const currentLevelIndex = levels.findIndex((level) => {
+      const isCurrentLevel = level <= currentHigh && level >= currentLow;
+      return isCurrentLevel;
+    });
+
+    if (currentLevelIndex > 0) {
+      currentLevel = levels[currentLevelIndex];
+      levels = levels.filter(
+        (level) => level >= currentHigh || level <= currentLow,
+      );
     }
 
     levels = this.removeCloses(levels);
 
     levels.sort();
-
-    let currentLevel = -1;
-
-    const currentLevelIndex = levels.findIndex(
-      (level) =>
-        level * (1 + this.spread) >= currentClose &&
-        level * (1 - this.spread) <= currentClose,
-    );
-
-    if (currentLevelIndex > 0) {
-      currentLevel = levels[currentLevelIndex];
-      delete levels[currentLevelIndex];
-    }
 
     const prevLevels = this.getPrevLevels(levels, currentClose);
     const nextLevels = this.getNextLevels(levels, currentClose);
@@ -111,6 +121,27 @@ export class CurrentSupportResistanceExecutor
     };
 
     return taggedLevels;
+  }
+  getHighsSma(candlesticks: CandlestickEntity[]) {
+    const highs = candlesticks.map((candlestick) => candlestick.high);
+    const highsSma: number[] = [];
+
+    for (let i = 3; i < highs.length; i++) {
+      highsSma.push(SMA(highs.slice(i - 3, i), 3));
+    }
+
+    return highsSma;
+  }
+
+  getLowsSma(candlesticks: CandlestickEntity[]) {
+    const lows = candlesticks.map((candlestick) => candlestick.low);
+    const lowsSma: number[] = [];
+
+    for (let i = 3; i < lows.length; i++) {
+      lowsSma.push(SMA(lows.slice(i - 3, i), 3));
+    }
+
+    return lowsSma;
   }
 
   getNextLevels(levels: number[], currentClose: number) {

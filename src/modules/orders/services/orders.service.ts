@@ -2,16 +2,14 @@ import { ExchangeClientOrderSide } from './../../adapters/exchange/exchange-clie
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CandlestickEntity } from '../../candlesticks/entities/candlestick.entity';
 import { SymbolType } from '../../../common/helpers/services/symbols/constants/symbol.enum.constant';
-import { SignalAction } from '../../strategies/signals/entities/signal.entity';
 import { OrderEntity } from '../entities/order.entity';
 import {
   OrderPositionSide,
   OrderSide,
   OrderType,
 } from '../constants/orders.enum.constant';
-import { ExchangeClient } from 'src/modules/adapters/exchange/exchange.client';
+import { ExchangeClient } from '../../adapters/exchange/exchange.client';
 import { CreateOrderDto } from '../dto/create-order.dto';
 
 export type InputOrderOpen = {

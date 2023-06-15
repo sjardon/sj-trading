@@ -10,10 +10,16 @@ export class EqualOperation implements OperationInterface<T[], boolean> {
   }
 
   resolve(): boolean {
-    const [firstValue, ...equalValues] = this.values;
+    const [firstValue, secondValue] = this.values;
+    const firstResolvedValue = firstValue.resolve();
+    const secondResolvedValue = secondValue.resolve();
+    if (firstResolvedValue === secondResolvedValue) {
+      return true;
+    }
 
-    return !equalValues.find(
-      (value) => firstValue.resolve() !== value.resolve(),
-    );
+    return false;
+    // return !equalValues.find(
+    //   (value) => firstValue.resolve() !== value.resolve(),
+    // );
   }
 }

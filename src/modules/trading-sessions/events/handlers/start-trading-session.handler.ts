@@ -13,8 +13,8 @@ import { IndicatorsExecutorsFactory } from '../../../indicators/factories/indica
 import { IndicatorExecutorInterface } from '../../../indicators/indicators-set/indicator-executor.interface';
 import { SignalEntity } from '../../../strategies/signals/entities/signal.entity';
 import { TickTradingSessionCommand } from '../../commands/impl/tick-trading-session.command';
-import { CreateIndicatorExecutorDto } from 'src/modules/indicators/dto/create-indicator-executor.dto';
-import { StrategyEntity } from 'src/modules/strategies/entities/strategy.entity';
+import { CreateIndicatorExecutorDto } from '../../../indicators/dto/create-indicator-executor.dto';
+import { StrategyEntity } from '../../../strategies/entities/strategy.entity';
 import { TradingSessionsStatusService } from '../../services/trading-sessions-status.service';
 
 @EventsHandler(StartTradingSessionEvent)

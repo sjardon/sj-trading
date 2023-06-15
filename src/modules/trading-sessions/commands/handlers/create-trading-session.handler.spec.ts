@@ -5,15 +5,11 @@ import { CreateTradingSessionHandler } from './create-trading-session.handler';
 import { TradingSessionEntity } from '../../entities/trading-session.entity';
 import { StrategiesService } from '../../../strategies/services/strategies.service';
 import { CreateTradingSessionCommand } from '../impl/create-trading-session.command';
-import {
-  CandlestickIntervalType,
-  SymbolType,
-} from '../../../candlesticks/constants/candlestick-interval.enum.constant';
+import { CandlestickIntervalType } from '../../../candlesticks/constants/candlestick-interval.enum.constant';
 import {
   BadRequestException,
   ServiceUnavailableException,
 } from '@nestjs/common';
-import { StrategyEntity } from 'src/modules/strategies/entities/strategy.entity';
 import { MAX_RUNNING_TRADING_SESSIONS } from '../../constants/trading-session.constants';
 import { ENUM_TRADING_SESSION_STATUS } from '../../constants/trading-session-status.enum.constant';
 

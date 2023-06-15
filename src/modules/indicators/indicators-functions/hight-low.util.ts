@@ -1,26 +1,23 @@
 import { CandlestickEntity } from '../../candlesticks/entities/candlestick.entity';
 
 export function isLow(
-  candlesticks: CandlestickEntity[],
-  candlestickIndex: number,
+  values: number[],
+  valueIndex: number,
   leftOffset: number,
   rightOffset: number,
 ) {
-  if (
-    candlestickIndex < leftOffset ||
-    candlesticks.length < candlestickIndex + rightOffset + 1
-  ) {
+  if (valueIndex < leftOffset || values.length < valueIndex + rightOffset + 1) {
     return false;
   }
 
-  for (let i = candlestickIndex - leftOffset; i < candlestickIndex; i++) {
-    if (candlesticks[i].low > candlesticks[i + 1].low) {
+  for (let i = valueIndex - leftOffset; i < valueIndex; i++) {
+    if (values[i] < values[i + 1]) {
       return false;
     }
   }
 
-  for (let i = candlestickIndex; i < candlestickIndex + rightOffset; i++) {
-    if (candlesticks[i].low < candlesticks[i + 1].low) {
+  for (let i = valueIndex; i < valueIndex + rightOffset; i++) {
+    if (values[i] > values[i + 1]) {
       return false;
     }
   }
@@ -29,26 +26,26 @@ export function isLow(
 }
 
 export function isHight(
-  candlesticks: CandlestickEntity[],
+  values: number[],
   candlestickIndex: number,
   leftOffset: number,
   rightOffset: number,
 ) {
   if (
     candlestickIndex < leftOffset ||
-    candlesticks.length < candlestickIndex + rightOffset + 1
+    values.length < candlestickIndex + rightOffset + 1
   ) {
     return false;
   }
 
   for (let i = candlestickIndex - leftOffset; i < candlestickIndex; i++) {
-    if (candlesticks[i].high < candlesticks[i + 1].high) {
+    if (values[i] > values[i + 1]) {
       return false;
     }
   }
 
   for (let i = candlestickIndex; i < candlestickIndex + rightOffset; i++) {
-    if (candlesticks[i].high > candlesticks[i + 1].high) {
+    if (values[i] < values[i + 1]) {
       return false;
     }
   }

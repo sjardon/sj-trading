@@ -10,7 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { BacktestOrderEntity } from '../../backtest-orders/entities/backtest-order.entity';
-import { OperationEntityAbstract } from 'src/modules/operations/entities/operation.entity.abstract';
+import { OperationEntityAbstract } from '../../../operations/entities/operation.entity.abstract';
 
 @Entity('backtestOperation')
 export class BacktestOperationEntity extends OperationEntityAbstract {

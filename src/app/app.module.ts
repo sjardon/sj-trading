@@ -13,10 +13,8 @@ import { AnalyzersModule } from '../modules/analyzers/analyzers.module';
 import { IndicatorsModule } from '../modules/indicators/indicators.module';
 import { StatisticsModule } from '../modules/statistics/statistics.module';
 import { AuthModule } from '../modules/auth/auth.module';
-import { CommonModule } from 'src/common/common.module';
-import { ConfigModule } from '@nestjs/config';
-import configs from 'src/configs';
-import { RiskAnalysisModule } from 'src/modules/risk-analysis/risk-analysis.module';
+import { CommonModule } from '../common/common.module';
+import { RiskAnalysisModule } from '../modules/risk-analysis/risk-analysis.module';
 
 @Module({
   imports: [

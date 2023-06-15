@@ -4,7 +4,7 @@ import { CandlestickEntity } from '../../candlesticks/entities/candlestick.entit
 import { InputGetCandlestick } from '../../candlesticks/services/candlestick.interface';
 import { CandlestickIntervalType } from '../../candlesticks/constants/candlestick-interval.enum.constant';
 import { SymbolType } from '../../../common/helpers/services/symbols/constants/symbol.enum.constant';
-import { OrderEntity } from 'src/modules/orders/entities/order.entity';
+import { OrderEntity } from '../../orders/entities/order.entity';
 import {
   InputExchangeClientCancelOrder,
   InputExchangeClientCreateOrder,

@@ -1,17 +1,8 @@
-import {
-  BaseEntity,
-  CreateDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 
-import { TradingSessionEntity } from 'src/modules/trading-sessions/entities/trading-session.entity';
+import { TradingSessionEntity } from '../../trading-sessions/entities/trading-session.entity';
 import { OperationEntityAbstract } from './operation.entity.abstract';
-import { OrderEntity } from 'src/modules/orders/entities/order.entity';
+import { OrderEntity } from '../../orders/entities/order.entity';
 
 @Entity('operation')
 export class OperationEntity extends OperationEntityAbstract {

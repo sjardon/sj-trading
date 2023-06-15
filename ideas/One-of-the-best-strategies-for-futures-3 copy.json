@@ -127,7 +127,7 @@
                   {
                     "type": "SUB",
                     "values": [
-                      "ORD::executedQty",
+                      "ORD::amount",
                       {
                         "type": "MLP",
                         "values": [2, "IND::ATR"]
@@ -148,7 +148,7 @@
                   {
                     "type": "MLP",
                     "values": [
-                      "ORD::executedQty",
+                      "ORD::amount",
                       {
                         "type": "ADD",
                         "values": [1, "TRG::takeProfit"]
@@ -254,7 +254,7 @@
                   {
                     "type": "ADD",
                     "values": [
-                      "ORD::executedQty",
+                      "ORD::amount",
                       {
                         "type": "MLP",
                         "values": [2, "IND::ATR"]
@@ -275,7 +275,7 @@
                   {
                     "type": "MLP",
                     "values": [
-                      "ORD::executedQty",
+                      "ORD::amount",
                       {
                         "type": "SUB",
                         "values": [1, "TRG::takeProfit"]

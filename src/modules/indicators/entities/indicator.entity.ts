@@ -60,12 +60,12 @@ export class IndicatorEntity extends BaseEntity {
     // this.parent = parent;
   }
 
-  getValueByName(name: string): IndicatorEntityValue | false {
+  getValueByName(name: string): IndicatorEntityValue | undefined {
     if (this.name == name) {
-      return this.value ? this.value : false;
+      return this.value !== undefined ? this.value : undefined;
     }
 
-    let searchedIndicator: IndicatorEntityValue | false = false;
+    let searchedIndicator: IndicatorEntityValue | undefined = undefined;
 
     if (Array.isArray(this.children)) {
       for (const indicator of this.children) {
@@ -78,7 +78,7 @@ export class IndicatorEntity extends BaseEntity {
       }
     }
 
-    if (!searchedIndicator) {
+    if (searchedIndicator === undefined) {
       throw Error(`Indicator not found: ${name}`);
     }
 

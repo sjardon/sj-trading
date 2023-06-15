@@ -17,6 +17,7 @@
           closeLongOrders,
           openShortOrders,
           closeShortOrders,
+          SMA_5,
           SMA_20,
           SMA_200,
           SMA_VOL_5,
@@ -28,6 +29,12 @@
         } = data;
 
         const { time, open, close, high, low, volume } = candlesticks;
+
+        let sma5Trace = {
+          x: SMA_5.time,
+          y: SMA_5.values,
+          type: 'scatter',
+        };
 
         let sma20Trace = {
           x: SMA_20.time,
@@ -256,6 +263,7 @@
             closeLongOrdersTrace,
             openShortOrdersTrace,
             closeShortOrdersTrace,
+            sma5Trace,
             sma20Trace,
             sma200Trace,
             smaVol5Trace,

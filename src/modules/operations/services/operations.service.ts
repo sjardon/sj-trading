@@ -1,16 +1,10 @@
-import { InputCreateOrder } from './../../backtests/backtest-orders/backtest-orders.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SignalAction } from '../../strategies/signals/entities/signal.entity';
 import { Repository } from 'typeorm';
-import { CandlestickEntity } from '../../candlesticks/entities/candlestick.entity';
-import {
-  InputOrderOpen,
-  OrdersService,
-} from '../../orders/services/orders.service';
+import { OrdersService } from '../../orders/services/orders.service';
 import { OperationEntity } from '../entities/operation.entity';
-import { TradingSessionEntity } from 'src/modules/trading-sessions/entities/trading-session.entity';
-import { SymbolType } from 'src/common/helpers/services/symbols/constants/symbol.enum.constant';
+import { TradingSessionEntity } from '../../trading-sessions/entities/trading-session.entity';
 
 export type InputCreateOperationBySignalAction = {
   tradingSession: TradingSessionEntity;

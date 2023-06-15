@@ -1,6 +1,6 @@
-import { ExchangeClient } from 'src/modules/adapters/exchange/exchange.client';
+import { ExchangeClient } from '../../adapters/exchange/exchange.client';
 import { Injectable, Logger } from '@nestjs/common';
-import { SymbolType } from 'src/common/helpers/services/symbols/constants/symbol.enum.constant';
+import { SymbolType } from '../../../common/helpers/services/symbols/constants/symbol.enum.constant';
 
 @Injectable()
 export class MarketsService {

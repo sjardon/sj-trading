@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { BalancesService } from 'src/modules/balances/services/balances.service';
-import { SymbolType } from 'src/common/helpers/services/symbols/constants/symbol.enum.constant';
+import { BalancesService } from '../../balances/services/balances.service';
+import { SymbolType } from '../../../common/helpers/services/symbols/constants/symbol.enum.constant';
 import { MarketsService } from '../../markets/services/markets.service';
 import { BalanceEntity } from '../../balances/entities/balance.entity';
 import { SymbolsService } from '../../../common/helpers/services/symbols/symbols.service';

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { SymbolType } from 'src/common/helpers/services/symbols/constants/symbol.enum.constant';
+import { SymbolType } from '../../../../common/helpers/services/symbols/constants/symbol.enum.constant';
 import { StockSymbolType } from './constants/stock-symbol.enum.constant';
 import {
   baseSymbolStockSymbolMap,

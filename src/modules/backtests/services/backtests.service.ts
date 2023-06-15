@@ -139,11 +139,27 @@ export class BacktestsService {
 
       // TODO: Save timeframes in an event.
 
-      this.timeframeService.create({
+      await this.timeframeService.create({
         backtest: this.backtest,
-        candlestick: this.candlesticksSamples[i],
+        candlestick: this.candlesticksSamples[i - 1],
         indicators,
       });
+
+      this.referenceContextVisitor.addReference(
+        new ReferenceVisitor({
+          timeframes: [],
+          candlesticks: currentCandlesticks,
+          indicators,
+          operation: this.operation,
+          // Set strategy constants
+          takeProfit: this.backtest.strategy.takeProfit,
+          stopLoss: this.backtest.strategy.stopLoss,
+        }),
+      );
+
+      // if (i <= candlesticksRange + 30) {
+      //   continue;
+      // }
 
       await this.startProcessCurrentCandlesticks(
         currentCandlesticks,
@@ -159,17 +175,17 @@ export class BacktestsService {
     try {
       // Load current scope data
 
-      this.referenceContextVisitor.addReference(
-        new ReferenceVisitor({
-          timeframes: [],
-          candlesticks: currentCandlesticks,
-          indicators,
-          operation: this.operation,
-          // Set strategy constants
-          takeProfit: this.backtest.strategy.takeProfit,
-          stopLoss: this.backtest.strategy.stopLoss,
-        }),
-      );
+      // this.referenceContextVisitor.addReference(
+      //   new ReferenceVisitor({
+      //     timeframes: [],
+      //     candlesticks: currentCandlesticks,
+      //     indicators,
+      //     operation: this.operation,
+      //     // Set strategy constants
+      //     takeProfit: this.backtest.strategy.takeProfit,
+      //     stopLoss: this.backtest.strategy.stopLoss,
+      //   }),
+      // );
 
       // Analyze current data
 
@@ -201,7 +217,8 @@ export class BacktestsService {
 
       this.logger.log(`Operation done: ${this.operation.id}`);
     } catch (error) {
-      // console.log(error);
+      console.log(error);
+      throw error;
       this.logger.log(`Error startProcessCurrentCandlesticks`);
     }
   }
