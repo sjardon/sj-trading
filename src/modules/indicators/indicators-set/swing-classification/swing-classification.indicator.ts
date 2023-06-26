@@ -8,6 +8,7 @@ import { SMA } from '../../indicators-functions/sma.util';
 
 export type InputCandlesticksPatternIndicator = {
   lookback: number;
+  threshold: number;
 };
 
 export type CandlesticksPatternIndicatorType = {
@@ -18,60 +19,55 @@ export type CandlesticksPatternIndicatorType = {
 export class SwingClassificationExecutor implements IndicatorExecutorInterface {
   name: string;
   lookback: number;
+  threshold: number;
 
   constructor(
     name: string,
     inputCandlesticksPatternIndicator: InputCandlesticksPatternIndicator,
   ) {
-    const { lookback } = inputCandlesticksPatternIndicator;
+    const { lookback, threshold } = inputCandlesticksPatternIndicator;
 
     this.name = name || 'SWING_CLASSIFICATION';
     this.lookback = lookback || 20;
+    this.threshold = threshold || 0.005;
   }
 
   exec = (candlesticks: CandlestickEntity[]): IndicatorEntity => {
-    const lowsSma = this.getLowsSma(candlesticks);
-    const highsSma = this.getHighsSma(candlesticks);
+    // let classification = this.clasifyFromSmas(candlesticks);
+    let classification = this.clasifyFromSma(candlesticks);
 
-    const lows = [];
-    const highs = [];
-
-    for (let i = 0; i < highsSma.length; i++) {
-      if (isLow(lowsSma, +i, 2, 2)) {
-        lows.push(candlesticks[i + 2]);
-      }
-
-      if (isHight(highsSma, +i, 2, 2)) {
-        highs.push(candlesticks[i + 2]);
-      }
-    }
-
-    
-    // return new IndicatorEntity({
-    //   name: this.name,
-    //   value: classification,
-    // });
+    return new IndicatorEntity({
+      name: this.name,
+      value: classification,
+    });
   };
 
-  getHighsSma(candlesticks: CandlestickEntity[]) {
+  clasifyFromSma(candlesticks: CandlestickEntity[]) {
+    const { open, close } = candlesticks[candlesticks.length - 1];
+    const openCloseMax = Math.max(open, close);
+    const openCloseMin = Math.min(open, close);
+
     const highs = candlesticks.map((candlestick) => candlestick.high);
-    const highsSma: number[] = [];
-
-    for (let i = 3; i < highs.length; i++) {
-      highsSma.push(SMA(highs.slice(i - 3, i), 3));
-    }
-
-    return highsSma;
-  }
-
-  getLowsSma(candlesticks: CandlestickEntity[]) {
     const lows = candlesticks.map((candlestick) => candlestick.low);
-    const lowsSma: number[] = [];
 
-    for (let i = 3; i < lows.length; i++) {
-      lowsSma.push(SMA(lows.slice(i - 3, i), 3));
+    const SMA_HIGH = SMA(highs, 20);
+    const SMA_LOW = SMA(lows, 20);
+
+    if (
+      (SMA_HIGH > openCloseMin && SMA_HIGH < openCloseMax) ||
+      (SMA_LOW > openCloseMin && SMA_LOW < openCloseMax)
+    ) {
+      return SwingName.CONSOLIDATION;
     }
 
-    return lowsSma;
+    if (SMA_HIGH < openCloseMin) {
+      return SwingName.UP_SWING;
+    }
+
+    if (SMA_LOW > openCloseMax) {
+      return SwingName.DOWN_SWING;
+    }
+
+    return SwingName.UNKNOWN;
   }
 }

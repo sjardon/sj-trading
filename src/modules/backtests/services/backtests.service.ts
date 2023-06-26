@@ -145,17 +145,17 @@ export class BacktestsService {
         indicators,
       });
 
-      this.referenceContextVisitor.addReference(
-        new ReferenceVisitor({
-          timeframes: [],
-          candlesticks: currentCandlesticks,
-          indicators,
-          operation: this.operation,
-          // Set strategy constants
-          takeProfit: this.backtest.strategy.takeProfit,
-          stopLoss: this.backtest.strategy.stopLoss,
-        }),
-      );
+      // this.referenceContextVisitor.addReference(
+      //   new ReferenceVisitor({
+      //     timeframes: [],
+      //     candlesticks: currentCandlesticks,
+      //     indicators,
+      //     operation: this.operation,
+      //     // Set strategy constants
+      //     takeProfit: this.backtest.strategy.takeProfit,
+      //     stopLoss: this.backtest.strategy.stopLoss,
+      //   }),
+      // );
 
       // if (i <= candlesticksRange + 30) {
       //   continue;
@@ -175,17 +175,17 @@ export class BacktestsService {
     try {
       // Load current scope data
 
-      // this.referenceContextVisitor.addReference(
-      //   new ReferenceVisitor({
-      //     timeframes: [],
-      //     candlesticks: currentCandlesticks,
-      //     indicators,
-      //     operation: this.operation,
-      //     // Set strategy constants
-      //     takeProfit: this.backtest.strategy.takeProfit,
-      //     stopLoss: this.backtest.strategy.stopLoss,
-      //   }),
-      // );
+      this.referenceContextVisitor.addReference(
+        new ReferenceVisitor({
+          timeframes: [],
+          candlesticks: currentCandlesticks,
+          indicators,
+          operation: this.operation,
+          // Set strategy constants
+          takeProfit: this.backtest.strategy.takeProfit,
+          stopLoss: this.backtest.strategy.stopLoss,
+        }),
+      );
 
       // Analyze current data
 

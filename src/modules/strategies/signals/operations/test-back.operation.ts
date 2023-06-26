@@ -14,8 +14,11 @@ export class TestBackOperation implements OperationInterface<T[], boolean> {
   resolve(): boolean {
     const [times, ...currentValues] = this.values;
 
-    let i = times.resolve() as unknown as number;
+    let initTimes = times.resolve() as unknown as number;
+    let i = initTimes;
+
     let result: boolean = false;
+
     while (i >= 0) {
       for (const value of currentValues) {
         if (value.resolve()) {
@@ -28,7 +31,7 @@ export class TestBackOperation implements OperationInterface<T[], boolean> {
       i--;
     }
 
-    this.referenceContextVisitor.reset();
+    this.referenceContextVisitor.next(initTimes - (i === -1 ? 0 : i));
     return result;
   }
 

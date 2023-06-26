@@ -13,6 +13,7 @@ export class EqualOperation implements OperationInterface<T[], boolean> {
     const [firstValue, secondValue] = this.values;
     const firstResolvedValue = firstValue.resolve();
     const secondResolvedValue = secondValue.resolve();
+
     if (firstResolvedValue === secondResolvedValue) {
       return true;
     }

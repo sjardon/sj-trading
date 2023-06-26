@@ -1,0 +1,295 @@
+{
+  "name": "",
+  "stopLoss": 0.02,
+  "takeProfit": 0.015,
+  "indicators": [
+    {
+      "name": "SMA_5",
+      "configuration": {
+        "type": "SMA",
+        "lookback": 10
+      }
+    },
+    {
+      "name": "SMA_20",
+      "configuration": {
+        "type": "SMA",
+        "lookback": 20
+      }
+    },
+    {
+      "name": "SMA_200",
+      "configuration": {
+        "type": "SMA",
+        "lookback": 200
+      }
+    },
+    {
+      "name": "SMA_VOL_5",
+      "configuration": {
+        "type": "SMA",
+        "target": "volume",
+        "lookback": 5
+      }
+    },
+    {
+      "name": "ATR",
+      "configuration": {
+        "type": "ATR",
+        "lookback": 7
+      }
+    },
+    {
+      "name": "CUR_SR",
+      "configuration": {
+        "type": "CURRENT_SUPPORT_RESISTANCE",
+        "spread": 0.005,
+        "lookback": 30
+      }
+    },
+    {
+      "name": "CP",
+      "configuration": {
+        "type": "CANDLESTICK_PATTERNS",
+        "findIn": true,
+        "lookback": 6
+      }
+    },
+    {
+      "name": "SWING_CLASSIFICATION",
+      "configuration": {
+        "type": "SWING_CLASSIFICATION",
+        "lookback": 30,
+        "threshold": 0.006
+      }
+    }
+  ],
+  "signals": [
+    {
+      "action": "OPEN_LONG",
+      "operation": {
+        "type": "AND",
+        "values": [
+          {
+            "type": "GT",
+            "values": ["IND::ATR", 130]
+          },
+          {
+            "type": "GT",
+            "values": [
+              "CS::volume",
+              {
+                "type": "MLP",
+                "values": ["IND::SMA_VOL_5", 1.3]
+              }
+            ]
+          },
+          {
+            "type": "EQ",
+            "values": ["IND::SWING_CLASSIFICATION", "UP_SWING"]
+          },
+          {
+            "type": "GT",
+            "values": ["IND::PREV_LEVEL_1", 0]
+          },
+          {
+            "type": "TEST_BACK",
+            "values": [
+              10,
+              {
+                "type": "AND",
+                "values": [
+                  {
+                    "type": "GT",
+                    "values": ["IND::CURRENT_LEVEL", 0]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "action": "CLOSE_LONG",
+      "operation": {
+        "type": "AND",
+        "values": [
+          {
+            "type": "OR",
+            "values": [
+              {
+                "type": "AND",
+                "values": [
+                  {
+                    "type": "LT_EQ",
+                    "values": [
+                      "CS::close",
+                      {
+                        "type": "SUB",
+                        "values": [
+                          "ORD::amount",
+                          {
+                            "type": "MLP",
+                            "values": [1.5, "IND::ATR"]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "AND",
+                "values": [
+                  {
+                    "type": "GT_EQ",
+                    "values": [
+                      "CS::close",
+                      {
+                        "type": "ADD",
+                        "values": [
+                          "ORD::amount",
+                          {
+                            "type": "MLP",
+                            "values": [2.5, "IND::ATR"]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "OR",
+                    "values": [
+                      {
+                        "type": "EQ",
+                        "values": ["IND::SWING_CLASSIFICATION", "DOWN_SWING"]
+                      },
+                      {
+                        "type": "EQ",
+                        "values": ["IND::SWING_CLASSIFICATION", "CONSOLIDATION"]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "action": "OPEN_SHORT",
+      "operation": {
+        "type": "AND",
+        "values": [
+          {
+            "type": "GT",
+            "values": ["IND::ATR", 130]
+          },
+          {
+            "type": "GT",
+            "values": [
+              "CS::volume",
+              {
+                "type": "MLP",
+                "values": ["IND::SMA_VOL_5", 1.3]
+              }
+            ]
+          },
+          {
+            "type": "EQ",
+            "values": ["IND::SWING_CLASSIFICATION", "DOWN_SWING"]
+          },
+          {
+            "type": "GT",
+            "values": ["IND::NEXT_LEVEL_1", 0]
+          },
+          {
+            "type": "TEST_BACK",
+            "values": [
+              10,
+              {
+                "type": "AND",
+                "values": [
+                  {
+                    "type": "GT",
+                    "values": ["IND::CURRENT_LEVEL", 0]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "action": "CLOSE_SHORT",
+      "operation": {
+        "type": "AND",
+        "values": [
+          {
+            "type": "OR",
+            "values": [
+              {
+                "type": "AND",
+                "values": [
+                  {
+                    "type": "GT_EQ",
+                    "values": [
+                      "CS::close",
+                      {
+                        "type": "ADD",
+                        "values": [
+                          "ORD::amount",
+                          {
+                            "type": "MLP",
+                            "values": [1.5, "IND::ATR"]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "AND",
+                "values": [
+                  {
+                    "type": "LT_EQ",
+                    "values": [
+                      "CS::close",
+                      {
+                        "type": "SUB",
+                        "values": [
+                          "ORD::amount",
+                          {
+                            "type": "MLP",
+                            "values": [2.5, "IND::ATR"]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "OR",
+                    "values": [
+                      {
+                        "type": "EQ",
+                        "values": ["IND::SWING_CLASSIFICATION", "UP_SWING"]
+                      },
+                      {
+                        "type": "EQ",
+                        "values": ["IND::SWING_CLASSIFICATION", "CONSOLIDATION"]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
