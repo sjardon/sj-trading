@@ -1,3 +1,4 @@
+import { CandlestickEntity } from './../../../candlesticks/entities/candlestick.entity';
 import { CandlesticksService } from '../../../candlesticks/services/candlesticks.service';
 import { ReferenceContext } from '../../../../common/visitors/reference-contex.visitor';
 import { CommandBus, EventsHandler, IEventHandler } from '@nestjs/cqrs';
@@ -36,7 +37,7 @@ export class StartTradingSessionHandler
     private readonly tradingSessionRepository: Repository<TradingSessionEntity>,
   ) {}
 
-  getUpdatedTradingSession(id) {
+  updateTradingSession(id) {
     this.tradingSessionsStatusService
       .get(id)
       .subscribe((next: TradingSessionEntity) => (this.tradingSession = next));
@@ -72,7 +73,7 @@ export class StartTradingSessionHandler
       await this.tradingSessionRepository.save(this.tradingSession);
 
       this.tradingSessionsStatusService.add(id, this.tradingSession);
-      this.getUpdatedTradingSession(id);
+      this.updateTradingSession(id);
 
       const { symbol, interval, strategy } = this.tradingSession;
 
@@ -95,6 +96,8 @@ export class StartTradingSessionHandler
             interval,
             lookback: 1000,
           });
+
+          this.logger.debug(`Candlesticks Length: ${candlesticks.length}`);
 
           await this.commandBus.execute(
             new TickTradingSessionCommand(

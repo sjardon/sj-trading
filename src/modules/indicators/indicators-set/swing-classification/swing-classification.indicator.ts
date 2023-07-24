@@ -33,14 +33,44 @@ export class SwingClassificationExecutor implements IndicatorExecutorInterface {
   }
 
   exec = (candlesticks: CandlestickEntity[]): IndicatorEntity => {
-    // let classification = this.clasifyFromSmas(candlesticks);
-    let classification = this.clasifyFromSma(candlesticks);
+    let classification = this.clasifyFromHHLL(candlesticks);
+
+    if (classification == SwingName.UNKNOWN) {
+      classification = this.clasifyFromSma(candlesticks);
+    }
 
     return new IndicatorEntity({
       name: this.name,
       value: classification,
     });
   };
+
+  clasifyFromHHLL(candlesticks: CandlestickEntity[]) {
+    const longCandlesticks = candlesticks.slice(candlesticks.length - 50);
+
+    const longLows = longCandlesticks.map((candlestick) => candlestick.low);
+    const longHighs = longCandlesticks.map((candlestick) => candlestick.high);
+
+    const longDif = Math.max(...longHighs) - Math.min(...longLows);
+
+    const middleLows = longLows.slice(longLows.length - 10);
+    const middleHighs = longHighs.slice(longHighs.length - 10);
+
+    const middleDif = Math.max(...middleLows) - Math.min(...middleHighs);
+
+    const shortLows = longLows.slice(longLows.length - 4);
+    const shortHighs = longHighs.slice(longHighs.length - 4);
+
+    const shortDif = Math.max(...shortHighs) - Math.min(...shortLows);
+
+    // if (shortDif / middleDif < )
+
+    if (shortDif / longDif < 0.25) {
+      return SwingName.CONSOLIDATION;
+    }
+
+    return SwingName.UNKNOWN;
+  }
 
   clasifyFromSma(candlesticks: CandlestickEntity[]) {
     const { open, close } = candlesticks[candlesticks.length - 1];
@@ -50,8 +80,8 @@ export class SwingClassificationExecutor implements IndicatorExecutorInterface {
     const highs = candlesticks.map((candlestick) => candlestick.high);
     const lows = candlesticks.map((candlestick) => candlestick.low);
 
-    const SMA_HIGH = SMA(highs, 20);
-    const SMA_LOW = SMA(lows, 20);
+    const SMA_HIGH = SMA(highs, this.lookback);
+    const SMA_LOW = SMA(lows, this.lookback);
 
     if (
       (SMA_HIGH > openCloseMin && SMA_HIGH < openCloseMax) ||

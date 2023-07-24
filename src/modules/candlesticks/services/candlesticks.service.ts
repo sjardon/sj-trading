@@ -36,12 +36,18 @@ export class CandlesticksService {
         startTime: undefined,
       });
 
+      console.log(
+        `Candlestick is candlestick without cache? ${
+          candlesticks[candlesticks.length - 1] instanceof CandlestickEntity
+        }`,
+      );
       await this.candlesticksCacheService.setWatched({
         symbol,
         interval,
         candlesticks,
       });
-      return candlesticks;
+
+      return this.candlesticksRepository.create(candlesticks);
     }
 
     const newCandlesticks = await this.exchangeClient.futuresWatchCandlesticks({
@@ -49,6 +55,15 @@ export class CandlesticksService {
       interval,
       lookback,
     });
+
+    if (newCandlesticks) {
+      console.log(
+        `new Candlestick is candlestick? ${
+          newCandlesticks[newCandlesticks.length - 1] instanceof
+          CandlestickEntity
+        }`,
+      );
+    }
 
     await this.candlesticksCacheService.updateWatched({
       symbol,
@@ -61,7 +76,7 @@ export class CandlesticksService {
       interval,
     });
 
-    return candlesticks ? candlesticks : [];
+    return candlesticks ? this.candlesticksRepository.create(candlesticks) : [];
   };
 
   futuresGet = async ({

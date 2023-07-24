@@ -33,9 +33,9 @@ export class ExchangeClient implements ExchangeInterface {
       // secret = configService.get<string>('exchange.testnetBinance.secretKey');
     }
 
-    this.futuresExchangeWatcher = new ccxt.pro.binanceusdm();
+    this.futuresExchangeWatcher = new ccxt.pro.binanceusdm({ apiKey, secret });
     // { apiKey, secret }
-    this.futuresExchange = new ccxt.binance();
+    this.futuresExchange = new ccxt.binance({ apiKey, secret });
     // { apiKey, secret }
 
     if (this.configService.get<string>('exchange.env') == 'testing') {
@@ -93,7 +93,7 @@ export class ExchangeClient implements ExchangeInterface {
     OHCLVs: ccxt.OHLCV[],
     symbol: SymbolType,
     interval: CandlestickIntervalType,
-  ) {
+  ): CandlestickEntity[] {
     return OHCLVs.map((OHCLV) => {
       const [timestamp, open, high, low, close, volume] = OHCLV;
 
@@ -107,7 +107,7 @@ export class ExchangeClient implements ExchangeInterface {
         closeTime: timestamp,
         volume: +volume,
         interval,
-      };
+      } as CandlestickEntity;
     }) as CandlestickEntity[];
   }
 

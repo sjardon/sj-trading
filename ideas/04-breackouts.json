@@ -50,11 +50,11 @@
       }
     },
     {
-      "name": "BREACKOUT",
+      "name": "BREAKOUT",
       "configuration": {
-        "type": "BREACKOUT",
+        "type": "BREAKOUT",
         "spread": 0.005,
-        "lookback": 30
+        "lookback": 100
       }
     },
     {
@@ -82,10 +82,6 @@
         "values": [
           {
             "type": "GT",
-            "values": ["IND::ATR", 130]
-          },
-          {
-            "type": "GT",
             "values": [
               "CS::volume",
               {
@@ -100,7 +96,7 @@
           },
           {
             "type": "EQ",
-            "values": ["IND::BREACKOUT_BULLISH", true]
+            "values": ["IND::BREAKOUT_BULLISH", true]
           }
         ]
       }
@@ -180,10 +176,6 @@
         "values": [
           {
             "type": "GT",
-            "values": ["IND::ATR", 130]
-          },
-          {
-            "type": "GT",
             "values": [
               "CS::volume",
               {
@@ -198,7 +190,7 @@
           },
           {
             "type": "EQ",
-            "values": ["IND::BREACKOUT_BEARISH", true]
+            "values": ["IND::BREAKOUT_BEARISH", true]
           }
         ]
       }
