@@ -3,9 +3,12 @@ import { BarName } from './bar-name.enum';
 import { SwingName } from './swing-name.enum';
 import { IndicatorExecutorInterface } from '../indicator-executor.interface';
 import { IndicatorEntity } from '../../entities/indicator.entity';
+import { isHight, isLow } from '../../indicators-functions/hight-low.util';
+import { SMA } from '../../indicators-functions/sma.util';
 
 export type InputCandlesticksPatternIndicator = {
   lookback: number;
+  threshold: number;
 };
 
 export type CandlesticksPatternIndicatorType = {
@@ -16,186 +19,85 @@ export type CandlesticksPatternIndicatorType = {
 export class SwingClassificationExecutor implements IndicatorExecutorInterface {
   name: string;
   lookback: number;
+  threshold: number;
 
   constructor(
     name: string,
     inputCandlesticksPatternIndicator: InputCandlesticksPatternIndicator,
   ) {
-    const { lookback } = inputCandlesticksPatternIndicator;
+    const { lookback, threshold } = inputCandlesticksPatternIndicator;
 
     this.name = name || 'SWING_CLASSIFICATION';
     this.lookback = lookback || 20;
+    this.threshold = threshold || 0.005;
   }
 
   exec = (candlesticks: CandlestickEntity[]): IndicatorEntity => {
-    const candlesticksToCheck = candlesticks;
+    let classification = this.clasifyFromHHLL(candlesticks);
 
-    let classification = candlesticksToCheck[0].isBullish()
-      ? SwingName.UP_SWING
-      : SwingName.DOWN_SWING;
-
-    const classifiedCandlesticks: Array<{
-      candlestick: CandlestickEntity;
-      classification: SwingName;
-    }> = [];
-    while (candlesticksToCheck.length > 1) {
-      const currentClassification =
-        this.getCandlestickClassification(candlesticksToCheck);
-
-      if (currentClassification == BarName.UP_BAR) {
-        classification = SwingName.UP_SWING;
-      }
-
-      if (currentClassification == BarName.DOWN_BAR) {
-        classification = SwingName.DOWN_SWING;
-      }
-
-      const { classification: lastClassification } =
-        classifiedCandlesticks[classifiedCandlesticks.length - 1] || {};
-
-      if (lastClassification && classification != lastClassification) {
-        if (this.isContinuation(classifiedCandlesticks, candlesticksToCheck)) {
-          classification = lastClassification;
-        }
-      }
-
-      classifiedCandlesticks.push({
-        candlestick: candlesticksToCheck[0],
-        classification,
-      });
-
-      candlesticksToCheck.shift();
+    if (classification == SwingName.UNKNOWN) {
+      classification = this.clasifyFromSma(candlesticks);
     }
 
     return new IndicatorEntity({
       name: this.name,
       value: classification,
     });
-    // return {
-    //   name: name.length > 0 ? name : IndicatorName.CANDLESTICKS_PATTERN,
-    //   value: classification,
-    // } as CandlesticksPatternIndicatorType;
   };
 
-  getCandlestickClassification = (candlesticks: CandlestickEntity[]) => {
-    if (candlesticks.length >= 2) {
-      if (this.isUpBar(candlesticks)) {
-        return BarName.UP_BAR;
-      }
+  clasifyFromHHLL(candlesticks: CandlestickEntity[]) {
+    const longCandlesticks = candlesticks.slice(candlesticks.length - 50);
 
-      if (this.isDownBar(candlesticks)) {
-        return BarName.DOWN_BAR;
-      }
+    const longLows = longCandlesticks.map((candlestick) => candlestick.low);
+    const longHighs = longCandlesticks.map((candlestick) => candlestick.high);
 
-      if (this.isInsideBar(candlesticks)) {
-        return BarName.INSIDE_BAR;
-      }
+    const longDif = Math.max(...longHighs) - Math.min(...longLows);
 
-      if (this.isOutsideBar(candlesticks)) {
-        return BarName.OUTSIDE_BAR;
-      }
+    const middleLows = longLows.slice(longLows.length - 10);
+    const middleHighs = longHighs.slice(longHighs.length - 10);
+
+    const middleDif = Math.max(...middleLows) - Math.min(...middleHighs);
+
+    const shortLows = longLows.slice(longLows.length - 4);
+    const shortHighs = longHighs.slice(longHighs.length - 4);
+
+    const shortDif = Math.max(...shortHighs) - Math.min(...shortLows);
+
+    // if (shortDif / middleDif < )
+
+    if (shortDif / longDif < 0.25) {
+      return SwingName.CONSOLIDATION;
     }
 
-    return BarName.NO_CLASSIFICABLE;
-  };
+    return SwingName.UNKNOWN;
+  }
 
-  isUpBar = (candlesticks: CandlestickEntity[]) => {
-    const candlestick = candlesticks[1];
-    const candlestickBefore = candlesticks[0];
+  clasifyFromSma(candlesticks: CandlestickEntity[]) {
+    const { open, close } = candlesticks[candlesticks.length - 1];
+    const openCloseMax = Math.max(open, close);
+    const openCloseMin = Math.min(open, close);
+
+    const highs = candlesticks.map((candlestick) => candlestick.high);
+    const lows = candlesticks.map((candlestick) => candlestick.low);
+
+    const SMA_HIGH = SMA(highs, this.lookback);
+    const SMA_LOW = SMA(lows, this.lookback);
 
     if (
-      candlestickBefore.high < candlestick.high &&
-      candlestickBefore.low < candlestick.low
+      (SMA_HIGH > openCloseMin && SMA_HIGH < openCloseMax) ||
+      (SMA_LOW > openCloseMin && SMA_LOW < openCloseMax)
     ) {
-      return true;
+      return SwingName.CONSOLIDATION;
     }
 
-    return false;
-  };
-
-  isDownBar = (candlesticks: CandlestickEntity[]) => {
-    const candlestick = candlesticks[1];
-    const candlestickBefore = candlesticks[0];
-
-    if (
-      candlestickBefore.high > candlestick.high &&
-      candlestickBefore.low > candlestick.low
-    ) {
-      return true;
+    if (SMA_HIGH < openCloseMin) {
+      return SwingName.UP_SWING;
     }
 
-    return false;
-  };
-
-  isInsideBar = (candlesticks: CandlestickEntity[]) => {
-    const candlestick = candlesticks[1];
-    const candlestickBefore = candlesticks[0];
-
-    if (
-      candlestickBefore.high >= candlestick.high &&
-      candlestickBefore.low <= candlestick.low
-    ) {
-      return true;
+    if (SMA_LOW > openCloseMax) {
+      return SwingName.DOWN_SWING;
     }
 
-    return false;
-  };
-
-  isOutsideBar = (candlesticks: CandlestickEntity[]) => {
-    const candlestick = candlesticks[1];
-    const candlestickBefore = candlesticks[0];
-
-    if (
-      candlestickBefore.high <= candlestick.high &&
-      candlestickBefore.low >= candlestick.low
-    ) {
-      return true;
-    }
-
-    return false;
-  };
-
-  isContinuation = (
-    classifiedCandlesticks: Array<{
-      candlestick: CandlestickEntity;
-      classification: SwingName;
-    }>,
-    candlesticksToCheck: CandlestickEntity[],
-  ) => {
-    if (classifiedCandlesticks.length < 1) {
-      return false;
-    }
-
-    const currentCandlestick = candlesticksToCheck[0];
-    let lastConfirmedCandlestick: CandlestickEntity =
-      classifiedCandlesticks[0].candlestick;
-
-    for (let i = classifiedCandlesticks.length - 1; i < 0; i--) {
-      const { classification, candlestick } = classifiedCandlesticks[i];
-      if (
-        (classification == SwingName.UP_SWING && candlestick.isBullish()) ||
-        (classification == SwingName.DOWN_SWING && candlestick.isBearish())
-      ) {
-        lastConfirmedCandlestick = candlestick;
-        break;
-      }
-    }
-
-    if (
-      lastConfirmedCandlestick.isBullish() &&
-      currentCandlestick.isBearish() &&
-      currentCandlestick.close < lastConfirmedCandlestick.open
-    ) {
-      return false;
-    }
-
-    if (
-      lastConfirmedCandlestick.isBearish() &&
-      currentCandlestick.isBullish() &&
-      currentCandlestick.close > lastConfirmedCandlestick.open
-    ) {
-      return false;
-    }
-    return true;
-  };
+    return SwingName.UNKNOWN;
+  }
 }

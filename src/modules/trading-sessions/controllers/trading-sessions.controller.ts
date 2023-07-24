@@ -21,8 +21,8 @@ export class TradingSessionsController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
-  create(@Body() createTradingSessionDto: CreateTradingSessionDto) {
-    return this.tradingSessionsService.create(createTradingSessionDto);
+  async create(@Body() createTradingSessionDto: CreateTradingSessionDto) {
+    return await this.tradingSessionsService.create(createTradingSessionDto);
   }
 
   @Get()
@@ -40,7 +40,7 @@ export class TradingSessionsController {
     @Param('id') id: string,
     @Body() updateTradingSessionDto: UpdateTradingSessionDto,
   ) {
-    return this.tradingSessionsService.update(+id, updateTradingSessionDto);
+    return this.tradingSessionsService.update(id, updateTradingSessionDto);
   }
 
   @Delete(':id')

@@ -8,6 +8,10 @@ import {
   isHangingMan,
   isEveningStarDoji,
   isMorningStarDoji,
+  isPinBarBullish,
+  isPinBarBearish,
+  isTwoBearishCandles,
+  isTwoBullishCandles,
 } from '../../indicators-functions/candlestick-patterns.util';
 import { CandlestickEntity } from '../../../candlesticks/entities/candlestick.entity';
 import { IndicatorEntity } from '../../entities/indicator.entity';
@@ -23,6 +27,10 @@ const candlestickPatterns = {
   HAMMER: isHammer,
   INVERTED_HAMMER: isInvertedHammer,
   HANGING_MAN: isHangingMan,
+  PIN_BAR_BULLISH: isPinBarBullish,
+  PIN_BAR_BEARISH: isPinBarBearish,
+  TWO_BULLISH_CANDLES: isTwoBullishCandles,
+  TWO_BEARISH_CANDLES: isTwoBearishCandles,
 };
 
 export class CandlestickPatternsExecutor implements IndicatorExecutorInterface {
@@ -91,6 +99,22 @@ export class CandlestickPatternsExecutor implements IndicatorExecutorInterface {
           name: 'HANGING_MAN',
           value: this.findPattern(candlesticks, 'HANGING_MAN'),
         }),
+        new IndicatorEntity({
+          name: 'PIN_BAR_BEARISH',
+          value: this.findPattern(candlesticks, 'PIN_BAR_BEARISH'),
+        }),
+        new IndicatorEntity({
+          name: 'PIN_BAR_BULLISH',
+          value: this.findPattern(candlesticks, 'PIN_BAR_BULLISH'),
+        }),
+        new IndicatorEntity({
+          name: 'TWO_BULLISH_CANDLES',
+          value: this.findPattern(candlesticks, 'TWO_BULLISH_CANDLES'),
+        }),
+        new IndicatorEntity({
+          name: 'TWO_BEARISH_CANDLES',
+          value: this.findPattern(candlesticks, 'TWO_BEARISH_CANDLES'),
+        }),
       ],
     });
   };
@@ -119,7 +143,8 @@ export class CandlestickPatternsExecutor implements IndicatorExecutorInterface {
       }
 
       return patternFound;
-    } catch {
+    } catch (error) {
+      console.log(error);
       return false;
     }
   }

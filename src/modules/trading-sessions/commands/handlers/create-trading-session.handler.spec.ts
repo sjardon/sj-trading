@@ -5,15 +5,11 @@ import { CreateTradingSessionHandler } from './create-trading-session.handler';
 import { TradingSessionEntity } from '../../entities/trading-session.entity';
 import { StrategiesService } from '../../../strategies/services/strategies.service';
 import { CreateTradingSessionCommand } from '../impl/create-trading-session.command';
-import {
-  CandlestickIntervalType,
-  CandlestickSymbolType,
-} from '../../../candlesticks/intervals/candlestick-interval.type';
+import { CandlestickIntervalType } from '../../../candlesticks/constants/candlestick-interval.enum.constant';
 import {
   BadRequestException,
   ServiceUnavailableException,
 } from '@nestjs/common';
-import { StrategyEntity } from 'src/modules/strategies/entities/strategy.entity';
 import { MAX_RUNNING_TRADING_SESSIONS } from '../../constants/trading-session.constants';
 import { ENUM_TRADING_SESSION_STATUS } from '../../constants/trading-session-status.enum.constant';
 
@@ -51,7 +47,7 @@ describe('CreateTradingSessionHandler', () => {
       const command = new CreateTradingSessionCommand({
         name: 'some-name',
         strategyId,
-        symbol: CandlestickSymbolType.BTCUSDT,
+        symbol: SymbolType.BTCUSDT,
         interval: CandlestickIntervalType['1h'],
       });
 
@@ -64,7 +60,7 @@ describe('CreateTradingSessionHandler', () => {
 
     it('Throw error if it is running a trading session with same symbol-interval', async () => {
       const strategyId = '39eacc52-a4db-4d97-a575-e564f7e4aeb8';
-      const symbol = CandlestickSymbolType.BTCUSDT;
+      const symbol = SymbolType.BTCUSDT;
       const interval = CandlestickIntervalType['1h'];
       const command = new CreateTradingSessionCommand({
         name: 'some-name',
@@ -85,7 +81,7 @@ describe('CreateTradingSessionHandler', () => {
 
     it('Throw error if max running trading session has reached', async () => {
       const strategyId = '39eacc52-a4db-4d97-a575-e564f7e4aeb8';
-      const symbol = CandlestickSymbolType.BTCUSDT;
+      const symbol = SymbolType.BTCUSDT;
       const interval = CandlestickIntervalType['1h'];
       const command = new CreateTradingSessionCommand({
         name: 'some-name',
@@ -116,7 +112,7 @@ describe('CreateTradingSessionHandler', () => {
     const tradingSessionDto = {
       name: 'some-name',
       strategyId,
-      symbol: CandlestickSymbolType.BTCUSDT,
+      symbol: SymbolType.BTCUSDT,
       interval: CandlestickIntervalType['1h'],
     };
 

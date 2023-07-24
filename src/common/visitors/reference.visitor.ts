@@ -5,13 +5,15 @@ import { BacktestTimeframeEntity } from '../../modules/backtests/backtest-timefr
 import { CandlestickEntity } from '../../modules/candlesticks/entities/candlestick.entity';
 import { IndicatorEntity } from '../../modules/indicators/entities/indicator.entity';
 import { ReferenceOperation } from '../../modules/strategies/signals/operations/reference.operation';
+import { OperationEntityAbstract } from '../../modules/operations/entities/operation.entity.abstract';
+import { OrderEntityAbstract } from '../../modules/orders/entities/order.entity.abstract';
 
 export type InputReferenceVisitorUpdate = {
   timeframes: BacktestTimeframeEntity[];
   candlesticks: CandlestickEntity[];
   indicators: IndicatorEntity[];
   // TODO: Change for abstract or base order
-  operation: BacktestOperationEntity;
+  operation: OperationEntityAbstract;
   takeProfit: number;
   stopLoss: number;
 };
@@ -20,7 +22,7 @@ export class ReferenceVisitor {
   timeframes: BacktestTimeframeEntity[];
   candlesticks: CandlestickEntity[];
   indicators: IndicatorEntity[];
-  order: BacktestOrderEntity;
+  order: OrderEntityAbstract;
   targets: {
     takeProfit: number;
     stopLoss: number;
@@ -121,12 +123,12 @@ export class ReferenceVisitor {
         try {
           return indicator.getValueByName(indicatorName);
         } catch (error) {
-          return false;
+          return undefined;
         }
       })
-      .filter((indicatorValue) => indicatorValue);
+      .filter((indicatorValue) => indicatorValue !== undefined);
 
-    if (!mappedIndicatorValue) {
+    if (mappedIndicatorValue === undefined) {
       throw new BadRequestException(
         `${indicatorName} is not a valid indicator name`,
       );

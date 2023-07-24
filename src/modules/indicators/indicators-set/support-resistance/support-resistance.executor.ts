@@ -40,25 +40,25 @@ export class SupportResistanceExecutor implements IndicatorExecutorInterface {
     const lows = [];
     const hights = [];
 
-    for (const i in candlesticks) {
-      if (isLow(candlesticks, +i, 2, 2)) {
-        lows.push(candlesticks[i].low);
-        // if (currentClose < candlesticks[i].low) {
-        //   supports.push(candlesticks[i].low);
-        // } else {
-        //   resistances.push(candlesticks[i].low);
-        // }
-      }
+    // for (const i in candlesticks) {
+    //   if (isLow(candlesticks, +i, 2, 2)) {
+    //     lows.push(candlesticks[i].low);
+    //     // if (currentClose < candlesticks[i].low) {
+    //     //   supports.push(candlesticks[i].low);
+    //     // } else {
+    //     //   resistances.push(candlesticks[i].low);
+    //     // }
+    //   }
 
-      if (isHight(candlesticks, +i, 2, 2)) {
-        hights.push(candlesticks[i].low);
-        // if (currentClose > candlesticks[i].high) {
-        //   resistances.push(candlesticks[i].high);
-        // } else {
-        //   supports.push(candlesticks[i].high);
-        // }
-      }
-    }
+    //   if (isHight(candlesticks, +i, 2, 2)) {
+    //     hights.push(candlesticks[i].low);
+    //     // if (currentClose > candlesticks[i].high) {
+    //     //   resistances.push(candlesticks[i].high);
+    //     // } else {
+    //     //   supports.push(candlesticks[i].high);
+    //     // }
+    //   }
+    // }
 
     return new IndicatorEntity({
       name: this.name,

@@ -52,9 +52,9 @@ export class StatisticsService {
 
   getRateByOperation(operation: BacktestOperationEntity) {
     if (operation.isBoth() || operation.isLong()) {
-      return operation.closeOrder.executedQty / operation.openOrder.executedQty;
+      return operation.closeOrder.amount / operation.openOrder.amount;
     } else if (operation.isShort()) {
-      return operation.openOrder.executedQty / operation.closeOrder.executedQty;
+      return operation.openOrder.amount / operation.closeOrder.amount;
     }
 
     return 1;
@@ -68,9 +68,9 @@ export class StatisticsService {
 
   isProfiteableByOperation(operation: BacktestOperationEntity) {
     if (operation.isBoth() || operation.isLong()) {
-      return operation.closeOrder.executedQty > operation.openOrder.executedQty;
+      return operation.closeOrder.amount > operation.openOrder.amount;
     } else if (operation.isShort()) {
-      return operation.openOrder.executedQty > operation.closeOrder.executedQty;
+      return operation.openOrder.amount > operation.closeOrder.amount;
     }
   }
 

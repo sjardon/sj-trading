@@ -19,7 +19,7 @@ import { OperationInterface } from './operation.interface';
 import { PrimitiveOperation } from './primitive.operation';
 import { plainToInstance } from 'class-transformer';
 import { ReferenceOperation } from './reference.operation';
-import { ReferenceContext } from 'src/common/visitors/reference-contex.visitor';
+import { ReferenceContext } from '../../../../common/visitors/reference-contex.visitor';
 import { TestBackOperation } from './test-back.operation';
 
 export class OperationsFactory {

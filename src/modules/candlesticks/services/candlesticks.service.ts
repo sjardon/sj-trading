@@ -1,3 +1,5 @@
+import { CandlesticksCacheService } from './candlesticks-cache.service';
+import { InputWatchCandlesticks } from './../../adapters/exchange/exchange.interface';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -8,49 +10,73 @@ import { InputGetCandlestick } from './candlestick.interface';
 @Injectable()
 export class CandlesticksService {
   constructor(
+    private candlesticksCacheService: CandlesticksCacheService,
     private exchangeClient: ExchangeClient,
     @InjectRepository(CandlestickEntity)
     private candlesticksRepository: Repository<CandlestickEntity>,
   ) {}
 
-  get = async ({
+  futuresWatch = async ({
     symbol,
     interval,
     lookback,
-    startTime,
-    endTime,
-  }: InputGetCandlestick) => {
-    // if (lookback > 1000) {
-    //   throw new Error('Lookback period is too big');
-    // }
+  }: InputWatchCandlesticks) => {
+    // TODO: Refactor needed
 
-    // // TODO: get candlesticks from redis cache
+    let prevCandlesticks = await this.candlesticksCacheService.getWatched({
+      symbol,
+      interval,
+    });
 
-    // try {
-    //   const candlesticksQuery: InputGetCandlestick = {
-    //     symbol,
-    //     interval,
-    //     lookback,
-    //     startTime,
-    //     endTime,
-    //   };
+    if (!prevCandlesticks) {
+      const candlesticks = await this.exchangeClient.futuresGetCandlesticks({
+        symbol,
+        interval,
+        lookback,
+        startTime: undefined,
+      });
 
-    //   const candlesticks = await this.exchangeClient.getCandlesticks(
-    //     candlesticksQuery,
-    //   );
+      console.log(
+        `Candlestick is candlestick without cache? ${
+          candlesticks[candlesticks.length - 1] instanceof CandlestickEntity
+        }`,
+      );
+      await this.candlesticksCacheService.setWatched({
+        symbol,
+        interval,
+        candlesticks,
+      });
 
-    //   if (candlesticks.length > 0) {
-    //     // await this.saveOnFile(
-    //     //   { symbol, interval, startTime, endTime },
-    //     //   candlesticks
-    //     // );
-    //   }
+      return this.candlesticksRepository.create(candlesticks);
+    }
 
-    //   return candlesticks;
-    // } catch (thrownError) {
-    //   throw thrownError;
-    // }
-    throw new Error('Method is not implemented');
+    const newCandlesticks = await this.exchangeClient.futuresWatchCandlesticks({
+      symbol,
+      interval,
+      lookback,
+    });
+
+    if (newCandlesticks) {
+      console.log(
+        `new Candlestick is candlestick? ${
+          newCandlesticks[newCandlesticks.length - 1] instanceof
+          CandlestickEntity
+        }`,
+      );
+    }
+
+    await this.candlesticksCacheService.updateWatched({
+      symbol,
+      interval,
+      delta: newCandlesticks,
+    });
+
+    const candlesticks = await this.candlesticksCacheService.getWatched({
+      symbol,
+      interval,
+    });
+
+    return candlesticks ? this.candlesticksRepository.create(candlesticks) : [];
   };
 
   futuresGet = async ({

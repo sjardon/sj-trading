@@ -12,10 +12,8 @@ import {
 } from '@nestjs/common';
 import { MAX_RUNNING_TRADING_SESSIONS } from '../../constants/trading-session.constants';
 import { ENUM_TRADING_SESSION_STATUS } from '../../constants/trading-session-status.enum.constant';
-import {
-  CandlestickIntervalType,
-  CandlestickSymbolType,
-} from '../../../candlesticks/intervals/candlestick-interval.type';
+import { CandlestickIntervalType } from '../../../candlesticks/constants/candlestick-interval.enum.constant';
+import { SymbolType } from '../../../../common/helpers/services/symbols/constants/symbol.enum.constant';
 
 @CommandHandler(CreateTradingSessionCommand)
 export class CreateTradingSessionHandler
@@ -33,7 +31,7 @@ export class CreateTradingSessionHandler
 
     const { createTradingSessionDto } = command;
     await this.validate(createTradingSessionDto);
-    await this.create(createTradingSessionDto);
+    return await this.create(createTradingSessionDto);
   }
 
   private async validate(createTradingSessionDto: CreateTradingSessionDto) {
@@ -69,7 +67,7 @@ export class CreateTradingSessionHandler
   }
 
   async validateSingleTradingSessions(
-    symbol: CandlestickSymbolType,
+    symbol: SymbolType,
     interval: CandlestickIntervalType,
   ) {
     try {
@@ -77,7 +75,7 @@ export class CreateTradingSessionHandler
         symbol,
         interval,
         status: In([
-          ENUM_TRADING_SESSION_STATUS.TO_START,
+          // ENUM_TRADING_SESSION_STATUS.TO_START,
           ENUM_TRADING_SESSION_STATUS.STARTING,
           ENUM_TRADING_SESSION_STATUS.IN_PROGRESS,
         ]),
@@ -96,7 +94,7 @@ export class CreateTradingSessionHandler
     try {
       const count = await this.tradingSessionRepository.countBy({
         status: In([
-          ENUM_TRADING_SESSION_STATUS.TO_START,
+          // ENUM_TRADING_SESSION_STATUS.TO_START,
           ENUM_TRADING_SESSION_STATUS.STARTING,
           ENUM_TRADING_SESSION_STATUS.IN_PROGRESS,
         ]),
@@ -154,6 +152,7 @@ export class CreateTradingSessionHandler
 
       return tradingSession;
     } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException(
         'Internal error: Trading session not created',
       );

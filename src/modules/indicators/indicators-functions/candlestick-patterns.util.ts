@@ -168,3 +168,112 @@ export function isHangingMan(candlesticks: CandlestickEntity[]): boolean {
     prev_2.high < current.open
   );
 }
+
+export function isPinBarBullish(candlesticks: CandlestickEntity[]): boolean {
+  checkLengthOrTrhowError(candlesticks, 1);
+
+  const { open, close, high, low } = candlesticks[candlesticks.length - 1];
+
+  const bodySize = Math.abs(open - close);
+  const upperShadow = high - Math.max(open, close);
+  const lowerShadow = Math.min(open, close) - low;
+  const totalLength = high - low;
+
+  const bodyToTotalRatio = bodySize / totalLength;
+  const upperShadowToTotalRatio = upperShadow / totalLength;
+  const lowerShadowToTotalRatio = lowerShadow / totalLength;
+
+  const isPinBarCondition =
+    upperShadowToTotalRatio <= 0.3 &&
+    bodyToTotalRatio <= 0.3 &&
+    lowerShadowToTotalRatio >= 0.7;
+
+  return isPinBarCondition;
+}
+
+export function isPinBarBearish(candlesticks: CandlestickEntity[]): boolean {
+  checkLengthOrTrhowError(candlesticks, 1);
+
+  const { open, close, high, low } = candlesticks[candlesticks.length - 1];
+
+  const bodySize = Math.abs(open - close);
+  const upperShadow = high - Math.max(open, close);
+  const lowerShadow = Math.min(open, close) - low;
+  const totalLength = high - low;
+
+  const bodyToTotalRatio = bodySize / totalLength;
+  const upperShadowToTotalRatio = upperShadow / totalLength;
+  const lowerShadowToTotalRatio = lowerShadow / totalLength;
+
+  const isPinBarCondition =
+    upperShadowToTotalRatio >= 0.7 &&
+    bodyToTotalRatio <= 0.3 &&
+    lowerShadowToTotalRatio <= 0.3;
+
+  return isPinBarCondition;
+}
+
+export function isTwoBearishCandles(
+  candlesticks: CandlestickEntity[],
+): boolean {
+  checkLengthOrTrhowError(candlesticks, 2);
+
+  const currents = candlesticks.slice(candlesticks.length - 2);
+
+  for (const candlestick of currents) {
+    const { open, close, high, low } = candlestick;
+
+    const bodySize = Math.abs(open - close);
+    const upperShadow = high - Math.max(open, close);
+    const lowerShadow = Math.min(open, close) - low;
+    const totalLength = high - low;
+
+    const bodyToTotalRatio = bodySize / totalLength;
+    const upperShadowToTotalRatio = upperShadow / totalLength;
+    const lowerShadowToTotalRatio = lowerShadow / totalLength;
+
+    const isBearishCondition =
+      // upperShadowToTotalRatio <= 0.3 &&
+      bodyToTotalRatio >= 0.35 &&
+      // lowerShadowToTotalRatio <= 0.3 &&
+      close < open;
+
+    if (!isBearishCondition) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+export function isTwoBullishCandles(
+  candlesticks: CandlestickEntity[],
+): boolean {
+  checkLengthOrTrhowError(candlesticks, 2);
+
+  const currents = candlesticks.slice(candlesticks.length - 2);
+  for (const candlestick of currents) {
+    const { open, close, high, low } = candlestick;
+
+    const bodySize = Math.abs(open - close);
+    const upperShadow = high - Math.max(open, close);
+    const lowerShadow = Math.min(open, close) - low;
+    const totalLength = high - low;
+
+    const bodyToTotalRatio = bodySize / totalLength;
+    const upperShadowToTotalRatio = upperShadow / totalLength;
+    const lowerShadowToTotalRatio = lowerShadow / totalLength;
+
+    const isBullishCondition =
+      // upperShadowToTotalRatio <= 0.3 &&
+      bodyToTotalRatio >= 0.35 &&
+      // lowerShadowToTotalRatio <= 0.3 &&
+      close > open;
+
+    if (!isBullishCondition) {
+      return false;
+    }
+  }
+
+  return true;
+}

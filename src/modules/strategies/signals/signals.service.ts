@@ -5,6 +5,7 @@ import { SignalEntity } from './entities/signal.entity';
 @Injectable()
 export class SignalsService {
   exec(signal: SignalEntity): boolean {
-    return signal.operation.resolve();
+    const resolvedOperation = signal.operation.resolve();
+    return resolvedOperation;
   }
 }

@@ -8,6 +8,7 @@ import { CandlestickPatternsExecutor } from '../indicators-set/candlestick-patte
 import { ConsolidationExecutor } from '../indicators-set/consolidation/consolidation.executor';
 import { SwingClassificationExecutor } from '../indicators-set/swing-classification/swing-classification.indicator';
 import { AtrExecutor } from '../indicators-set/atr/atr.executor';
+import { BreakoutExecutor } from '../indicators-set/breakout/breakout.indicator';
 
 export class IndicatorsExecutorsFactory {
   private indicatorExecutorsMap = {
@@ -33,6 +34,9 @@ export class IndicatorsExecutorsFactory {
 
     ATR: (name, configuration): IndicatorExecutorInterface =>
       new AtrExecutor(name, configuration),
+
+    BREAKOUT: (name, configuration): IndicatorExecutorInterface =>
+      new BreakoutExecutor(name, configuration),
   };
 
   create(

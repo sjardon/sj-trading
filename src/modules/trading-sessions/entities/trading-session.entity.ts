@@ -1,5 +1,5 @@
-import { CandlestickIntervalType } from '../../candlesticks/intervals/candlestick-interval.type';
-import { CandlestickSymbolType } from '../../candlesticks/symbols/candlestick-symbol.type';
+import { CandlestickIntervalType } from '../../candlesticks/constants/candlestick-interval.enum.constant';
+import { SymbolType } from '../../../common/helpers/services/symbols/constants/symbol.enum.constant';
 import {
   BaseEntity,
   Column,
@@ -28,7 +28,7 @@ export class TradingSessionEntity extends BaseEntity {
   strategy: StrategyEntity;
 
   @Column()
-  symbol: CandlestickSymbolType;
+  symbol: SymbolType;
 
   @Column()
   interval: CandlestickIntervalType;
@@ -43,7 +43,7 @@ export class TradingSessionEntity extends BaseEntity {
   @Column('timestamp')
   startTime: Date;
 
-  @Column('timestamp')
+  @Column({ type: 'timestamp', nullable: true })
   endTime: Date;
 
   @CreateDateColumn({ name: 'created_at' })

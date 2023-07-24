@@ -6,6 +6,7 @@ import {
   // IndicatorEntityConfiguration,
 } from '../../entities/indicator.entity';
 import { IndicatorExecutorInterface } from '../indicator-executor.interface';
+import { SMA } from '../../indicators-functions/sma.util';
 
 export class CurrentSupportResistanceExecutor
   implements IndicatorExecutorInterface
@@ -72,37 +73,69 @@ export class CurrentSupportResistanceExecutor
   getTaggedLevels(candlesticks: CandlestickEntity[]) {
     let levels: number[] = [];
 
-    const currentClose = candlesticks[candlesticks.length - 1].close;
+    const {
+      close: currentClose,
+      high: currentHigh,
+      low: currentLow,
+    } = candlesticks[candlesticks.length - 1];
 
-    for (const i in candlesticks) {
-      if (isLow(candlesticks, +i, 2, 2)) {
-        levels.push(candlesticks[i].low);
-      }
+    const lowsSma = this.getLowsSma(candlesticks);
 
-      if (isHight(candlesticks, +i, 2, 2)) {
-        levels.push(candlesticks[i].high);
+    const highsSma = this.getHighsSma(candlesticks);
+    const highs = candlesticks.map((candlestick) => candlestick.high);
+
+    const lows = candlesticks.map((candlestick) => candlestick.low);
+
+    for (const i in highs) {
+      if (isHight(highs, +i, 2, 2)) {
+        levels.push(highs[i]);
       }
+    }
+
+    for (const i in lows) {
+      if (isLow(lows, +i, 2, 2)) {
+        levels.push(lows[i]);
+      }
+    }
+
+    // for (const i in highsSma) {
+    //   if (isHight(highsSma, +i, 2, 2)) {
+    //     levels.push(highsSma[i]);
+    //   }
+    // }
+
+    // for (const i in lowsSma) {
+    //   if (isLow(lowsSma, +i, 2, 2)) {
+    //     levels.push(lowsSma[i]);
+    //   }
+    // }
+
+    let currentLevel = -1;
+
+    const currentLevelIndex = levels.findIndex((level) => {
+      const isCurrentLevel = level >= currentLow && level <= currentHigh;
+      return isCurrentLevel;
+    });
+
+    if (currentLevelIndex > 0) {
+      currentLevel = levels[currentLevelIndex];
+      levels = levels.filter(
+        (level) => !(level <= currentHigh && level >= currentLow),
+      );
     }
 
     levels = this.removeCloses(levels);
 
     levels.sort();
 
-    let currentLevel = -1;
-
-    const currentLevelIndex = levels.findIndex(
-      (level) =>
-        level * (1 + this.spread) >= currentClose &&
-        level * (1 - this.spread) <= currentClose,
+    const prevLevels = this.getPrevLevels(
+      levels,
+      candlesticks[candlesticks.length - 1],
     );
-
-    if (currentLevelIndex > 0) {
-      currentLevel = levels[currentLevelIndex];
-      delete levels[currentLevelIndex];
-    }
-
-    const prevLevels = this.getPrevLevels(levels, currentClose);
-    const nextLevels = this.getNextLevels(levels, currentClose);
+    const nextLevels = this.getNextLevels(
+      levels,
+      candlesticks[candlesticks.length - 1],
+    );
 
     const taggedLevels = {
       ...prevLevels,
@@ -113,8 +146,32 @@ export class CurrentSupportResistanceExecutor
     return taggedLevels;
   }
 
-  getNextLevels(levels: number[], currentClose: number) {
-    const [next, afterNext] = levels.filter((level) => currentClose < level);
+  getHighsSma(candlesticks: CandlestickEntity[]) {
+    const highs = candlesticks.map((candlestick) => candlestick.high);
+    const highsSma: number[] = [];
+
+    for (let i = 3; i < highs.length; i++) {
+      highsSma.push(SMA(highs.slice(i - 3, i), 3));
+    }
+
+    return highsSma;
+  }
+
+  getLowsSma(candlesticks: CandlestickEntity[]) {
+    const lows = candlesticks.map((candlestick) => candlestick.low);
+    const lowsSma: number[] = [];
+
+    for (let i = 3; i < lows.length; i++) {
+      lowsSma.push(SMA(lows.slice(i - 3, i), 3));
+    }
+
+    return lowsSma;
+  }
+
+  getNextLevels(levels: number[], { open, close }: CandlestickEntity) {
+    const maxOpenClose = Math.max(open, close);
+
+    const [next, afterNext] = levels.filter((level) => maxOpenClose < level);
 
     return {
       nextLevel2: afterNext ? afterNext : -1,
@@ -122,9 +179,10 @@ export class CurrentSupportResistanceExecutor
     };
   }
 
-  getPrevLevels(levels: number[], currentClose: number) {
+  getPrevLevels(levels: number[], { open, close }: CandlestickEntity) {
+    const minOpenClose = Math.min(open, close);
     const [prev, beforePrev] = levels
-      .filter((level) => currentClose > level)
+      .filter((level) => minOpenClose > level)
       .reverse();
 
     return {

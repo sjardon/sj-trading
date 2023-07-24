@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CandlestickEntity } from '../../candlesticks/entities/candlestick.entity';
-import { CandlestickSymbolType } from '../../candlesticks/intervals/candlestick-interval.type';
+import { SymbolType } from '../../../common/helpers/services/symbols/constants/symbol.enum.constant';
 import { SignalAction } from '../../strategies/signals/entities/signal.entity';
 import {
   BacktestOrderEntity,
@@ -12,7 +12,7 @@ import {
 
 export type InputCreateOrder = {
   actionToPerform: SignalAction;
-  symbol: CandlestickSymbolType;
+  symbol: SymbolType;
   quantity: string;
 };
 
@@ -25,7 +25,7 @@ export class BacktestOrdersService {
 
   async open(
     inputFuturesOpenLongOrder: {
-      symbol: CandlestickSymbolType;
+      symbol: SymbolType;
       quantity: string;
     },
     candlestick?: CandlestickEntity,
@@ -42,7 +42,7 @@ export class BacktestOrdersService {
 
   async close(
     inputFuturesOpenLongOrder: {
-      symbol: CandlestickSymbolType;
+      symbol: SymbolType;
       quantity: string;
     },
     candlestick?: CandlestickEntity,
@@ -59,7 +59,7 @@ export class BacktestOrdersService {
 
   async openLong(
     inputFuturesOpenLongOrder: {
-      symbol: CandlestickSymbolType;
+      symbol: SymbolType;
       quantity: string;
     },
     candlestick?: CandlestickEntity,
@@ -76,7 +76,7 @@ export class BacktestOrdersService {
 
   async closeLong(
     inputFuturesOpenLongOrder: {
-      symbol: CandlestickSymbolType;
+      symbol: SymbolType;
       quantity: string;
     },
     candlestick?: CandlestickEntity,
@@ -93,7 +93,7 @@ export class BacktestOrdersService {
 
   async openShort(
     inputFuturesOpenLongOrder: {
-      symbol: CandlestickSymbolType;
+      symbol: SymbolType;
       quantity: string;
     },
     candlestick?: CandlestickEntity,
@@ -110,7 +110,7 @@ export class BacktestOrdersService {
 
   async closeShort(
     inputFuturesOpenLongOrder: {
-      symbol: CandlestickSymbolType;
+      symbol: SymbolType;
       quantity: string;
     },
     candlestick?: CandlestickEntity,
@@ -127,7 +127,7 @@ export class BacktestOrdersService {
 
   async create(
     inputFuturesCreateOrder: {
-      symbol: CandlestickSymbolType;
+      symbol: SymbolType;
       side: OrderSide;
       positionSide: OrderPositionSide;
       quantity: string;
@@ -140,8 +140,8 @@ export class BacktestOrdersService {
     try {
       const newOrder = this.backtestOrdersRepository.create({
         symbol,
-        // executedQty: +quantity,
-        executedQty: candlestick.close,
+        // amount: +quantity,
+        amount: candlestick.close,
         type: 'TRAILING_STOP_MARKET',
         side,
         positionSide,

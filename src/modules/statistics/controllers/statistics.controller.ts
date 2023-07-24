@@ -73,37 +73,43 @@ export class StatisticsController {
           time: operations.map((op) =>
             new Date(+op.openOrder.transactTime).toISOString(),
           ),
-          values: operations.map((op) => op.openOrder.executedQty),
+          values: operations.map((op) => op.openOrder.amount),
         },
         closeOrders: {
           time: operations.map((op) =>
             new Date(+op.closeOrder.transactTime).toISOString(),
           ),
-          values: operations.map((op) => op.closeOrder.executedQty),
+          values: operations.map((op) => op.closeOrder.amount),
         },
         openLongOrders: {
           time: longOperations.map((op) =>
             new Date(+op.openOrder.transactTime).toISOString(),
           ),
-          values: longOperations.map((op) => op.openOrder.executedQty),
+          values: longOperations.map((op) => op.openOrder.amount),
         },
         closeLongOrders: {
           time: longOperations.map((op) =>
             new Date(+op.closeOrder.transactTime).toISOString(),
           ),
-          values: longOperations.map((op) => op.closeOrder.executedQty),
+          values: longOperations.map((op) => op.closeOrder.amount),
         },
         openShortOrders: {
           time: shortOperations.map((op) =>
             new Date(+op.openOrder.transactTime).toISOString(),
           ),
-          values: shortOperations.map((op) => op.openOrder.executedQty),
+          values: shortOperations.map((op) => op.openOrder.amount),
         },
         closeShortOrders: {
           time: shortOperations.map((op) =>
             new Date(+op.closeOrder.transactTime).toISOString(),
           ),
-          values: shortOperations.map((op) => op.closeOrder.executedQty),
+          values: shortOperations.map((op) => op.closeOrder.amount),
+        },
+        SMA_5: {
+          time,
+          values: indicators
+            .filter((indicator) => indicator.name == 'SMA_5')
+            .map((indicator) => indicator.value),
         },
         SMA_20: {
           time,

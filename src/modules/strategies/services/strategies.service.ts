@@ -30,7 +30,7 @@ export class StrategiesService {
   async findOne(id: string) {
     try {
       const strategy = await this.strategiesRepository.findOneBy({ id });
-      return strategy;
+      return strategy ? strategy : false;
     } catch (thrownError) {
       throw thrownError;
     }

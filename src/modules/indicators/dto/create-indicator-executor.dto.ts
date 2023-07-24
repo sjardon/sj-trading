@@ -10,6 +10,7 @@ export enum IndicatorExecutorType {
   CANDLESTICK_PATTERNS = 'CANDLESTICK_PATTERNS',
   SWING_CLASSIFICATION = 'SWING_CLASSIFICATION',
   ATR = 'ATR',
+  BREAKOUT = 'BREAKOUT',
 }
 
 export class CreateIndicatorExecutorConfigurationDto {

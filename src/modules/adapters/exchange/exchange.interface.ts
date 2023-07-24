@@ -2,26 +2,32 @@ import { Subject } from 'rxjs';
 // import { AccountEntity } from '../../account/account.entity';
 import { CandlestickEntity } from '../../candlesticks/entities/candlestick.entity';
 import { InputGetCandlestick } from '../../candlesticks/services/candlestick.interface';
-import { CandlestickIntervalType } from '../../candlesticks/intervals/candlestick-interval.type';
-import { CandlestickSymbolType } from '../../candlesticks/symbols/candlestick-symbol.type';
+import { CandlestickIntervalType } from '../../candlesticks/constants/candlestick-interval.enum.constant';
+import { SymbolType } from '../../../common/helpers/services/symbols/constants/symbol.enum.constant';
+import { OrderEntity } from '../../orders/entities/order.entity';
+import {
+  InputExchangeClientCancelOrder,
+  InputExchangeClientCreateOrder,
+} from './exchange-client.types';
 // import { OrderEntity } from '../../order/order.entity';
 // import { OrderPositionSide } from '../../order/position-side/order-position-side.type';
 // import { OrderSide } from '../../order/side/order-side.type';
 
-export type InputRealTimeCandlesticks = {
-  symbols: CandlestickSymbolType[];
+export type InputWatchCandlesticks = {
+  symbol: SymbolType;
   interval: CandlestickIntervalType;
+  lookback: number;
 };
 
 export type InputFuturesGetOrder = {
-  symbol: CandlestickSymbolType;
+  symbol: SymbolType;
   orderId: number;
 };
 
-export type InputFuturesGetOpenOrders = { symbol: CandlestickSymbolType };
+export type InputFuturesGetOpenOrders = { symbol: SymbolType };
 
 // export type InputFuturesCreateOrder = {
-//   symbol: CandlestickSymbolType;
+//   symbol: SymbolType;
 //   side: OrderSide;
 //   positionSide: OrderPositionSide;
 //   quantity: number;
@@ -29,44 +35,34 @@ export type InputFuturesGetOpenOrders = { symbol: CandlestickSymbolType };
 // };
 
 export type InputFuturesCancelOrder = {
-  symbol: CandlestickSymbolType;
+  symbol: SymbolType;
   orderId: number;
 };
 
 export interface ExchangeInterface {
-  getCandlesticks(
-    inputGetCandlesticks: InputGetCandlestick,
-  ): Promise<CandlestickEntity[]>; // candles
-
-  // realTimeCandlestick(
-  //   inputRealTimeCandlesticks: InputRealTimeCandlesticks
-  // ): Subject<CandlestickEntity>; // WS
-
-  // futuresGetAccountBalance(): Promise<AccountEntity[]>;
+  // getCandlesticks(
+  //   inputGetCandlesticks: InputGetCandlestick,
+  // ): Promise<CandlestickEntity[]>; // candles
 
   futuresGetCandlesticks(
     inputGetCandlesticks: InputGetCandlestick,
   ): Promise<CandlestickEntity[]>; // futuresCandles
 
-  // futuresRealTimeCandlesticks(
-  //   inputRealTimeCandlesticks: InputRealTimeCandlesticks
-  // ): Subject<CandlestickEntity>; // WS
+  futuresWatchCandlesticks(
+    inputWatchCandlesticks: InputWatchCandlesticks,
+  ): Promise<CandlestickEntity[]>;
 
-  // futuresGetOrder(
-  //   inputFuturesGetOrder: InputFuturesGetOrder
-  // ): Promise<OrderEntity>; // futuresGetOrder
+  watchBalances(): Promise<any>;
 
-  // futuresGetOpenOrders(
-  //   inputFuturesGetOpenOrders: InputFuturesGetOpenOrders
-  // ): Promise<OrderEntity[]>; // futuresOpenOrders
+  createOrder({
+    symbol,
+    type,
+    side,
+    amount,
+  }: InputExchangeClientCreateOrder): Promise<OrderEntity>; // futuresOrder
 
-  // futuresCreateOrder(
-  //   inputFuturesCreateOrder: InputFuturesCreateOrder
-  // ): Promise<OrderEntity>; // futuresOrder
-
-  // futuresCancelOrder({
-  //   symbol,
-  //   orderId,
-  // }: InputFuturesCancelOrder): Promise<OrderEntity>; // futuresCancelOrder
-  // futuresAccountInfo():
+  cancelOrder({
+    exchangeOrderId,
+    symbol,
+  }: InputExchangeClientCancelOrder): Promise<OrderEntity>;
 }

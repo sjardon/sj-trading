@@ -1,7 +1,7 @@
 import { InternalServerErrorException } from '@nestjs/common';
 
 import { OperationInterface } from './operation.interface';
-import { ReferenceContext } from 'src/common/visitors/reference-contex.visitor';
+import { ReferenceContext } from '../../../../common/visitors/reference-contex.visitor';
 
 type T = OperationInterface<unknown, number | boolean | string>;
 
