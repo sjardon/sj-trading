@@ -20,24 +20,23 @@ export class DatabaseService {
     const database = this.configService.get<string>('db.postgres.name');
     const username = this.configService.get<string>('db.postgres.user');
     const password = this.configService.get<string>('db.postgres.password');
+    const ssl =
+      this.configService.get<string>('db.postgres.ssl') == 'TRUE'
+        ? 'ssl=required'
+        : '';
 
-    // const host = 'localhost';
-    // const port = 5432;
-    // const database = 'trading';
-    // const username = 'admin';
-    // const password = 'admin';
+    const url = `postgresql://${username}:${password}@${host}:${port}/${database}?${ssl}`;
 
     return {
       type: 'postgres',
-      host,
-      port,
-      database,
-      username,
-      password,
+      // host,
+      // port,
+      // database,
+      // username,
+      // password,
+      url,
       autoLoadEntities: true,
       synchronize: env == ENUM_APP_ENVIRONMENT.LOCAL ? true : false,
     };
-
-    // throw new Error('Method not implemented.');
   }
 }
