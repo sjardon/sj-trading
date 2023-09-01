@@ -22,7 +22,7 @@ export class DatabaseService {
     const password = this.configService.get<string>('db.postgres.password');
     const ssl =
       this.configService.get<string>('db.postgres.ssl') == 'TRUE'
-        ? 'ssl=required'
+        ? 'sslmode=required'
         : '';
 
     const url = `postgresql://${username}:${password}@${host}:${port}/${database}?${ssl}`;
