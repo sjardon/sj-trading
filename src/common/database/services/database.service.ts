@@ -20,21 +20,32 @@ export class DatabaseService {
     const database = this.configService.get<string>('db.postgres.name');
     const username = this.configService.get<string>('db.postgres.user');
     const password = this.configService.get<string>('db.postgres.password');
+
+    const caCert = this.configService.get<string>('db.postgres.caCert');
+
     const ssl =
       this.configService.get<string>('db.postgres.ssl') == 'TRUE'
-        ? 'sslmode=required'
-        : '';
+        ? caCert
+          ? {
+              rejectUnauthorized: true,
+              ca: caCert,
+            }
+          : {
+              rejectUnauthorized: false,
+            }
+        : false;
 
     const url = `postgresql://${username}:${password}@${host}:${port}/${database}?${ssl}`;
 
     return {
       type: 'postgres',
-      // host,
-      // port,
-      // database,
-      // username,
-      // password,
-      url,
+      host,
+      port,
+      database,
+      username,
+      password,
+      // url,
+      ssl,
       autoLoadEntities: true,
       synchronize: env == ENUM_APP_ENVIRONMENT.LOCAL ? true : false,
     };

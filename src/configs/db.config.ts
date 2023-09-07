@@ -10,6 +10,7 @@ export default registerAs(
       host: process.env.POSTGRES_HOST,
       port: process.env.POSTGRES_PORT,
       ssl: process.env.POSTGRES_SSL,
+      caCert: process.env.POSTGRES_CA_CERT,
     },
   }),
 );
