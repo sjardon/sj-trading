@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ENUM_APP_ENVIRONMENT } from '../../../app/constants/app.enum.constant';
+import * as fs from 'fs';
 
 @Injectable()
 export class DatabaseService {
@@ -21,14 +22,14 @@ export class DatabaseService {
     const username = this.configService.get<string>('db.postgres.user');
     const password = this.configService.get<string>('db.postgres.password');
 
-    const caCert = this.configService.get<string>('db.postgres.caCert');
+    const caCertPath = this.configService.get<string>('db.postgres.caCert');
 
     const ssl =
       this.configService.get<string>('db.postgres.ssl') == 'TRUE'
-        ? caCert
+        ? caCertPath
           ? {
               rejectUnauthorized: true,
-              ca: caCert,
+              ca: fs.readFileSync(caCertPath),
             }
           : {
               rejectUnauthorized: false,
