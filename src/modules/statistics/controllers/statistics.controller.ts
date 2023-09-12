@@ -1,4 +1,10 @@
-import { Controller, Get, Param, Render } from '@nestjs/common';
+import {
+  Controller,
+  ForbiddenException,
+  Get,
+  Param,
+  Render,
+} from '@nestjs/common';
 import { StatisticsService } from '../services/statistics.service';
 import { BacktestOperationsService } from '../../backtests/backtest-operations/backtest-operations.service';
 import { BacktestTimeframesService } from '../../backtests/backtest-timeframe/backtest-timeframes.service';
@@ -14,8 +20,10 @@ export class StatisticsController {
   ) {}
 
   @Get('backtest/:backtestId')
-  @Render('index')
+  // @Render('index')
   async root(@Param() params: any) {
+    return new ForbiddenException();
+
     const { backtestId } = params;
 
     let statistics = await this.statisticsService.getByBacktest({ backtestId });
