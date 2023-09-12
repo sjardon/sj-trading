@@ -97,8 +97,6 @@ export class StartTradingSessionHandler
             lookback: 1000,
           });
 
-          this.logger.debug(`Candlesticks Length: ${candlesticks.length}`);
-
           await this.commandBus.execute(
             new TickTradingSessionCommand(
               this.tradingSession,
@@ -110,8 +108,11 @@ export class StartTradingSessionHandler
             ),
           );
         } catch (e) {
-          console.log(e);
-          // throw e // uncomment to stop the loop on exceptions
+          const { message } = e;
+          this.logger.log(
+            `Stopping tradingSession [${this.tradingSession.id}] by an error [${message}]`,
+          );
+          throw e;
         }
       }
       this.logger.log(`Ending tradingSession [${this.tradingSession.id}]`);

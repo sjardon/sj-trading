@@ -63,7 +63,6 @@ export class ExchangeClient implements ExchangeInterface {
 
       return this.mapToCandlesticks(OHCLVs, symbol, interval);
     } catch (thrownError) {
-      console.log(thrownError);
       throw new Error('Exchange get futures candlesticks error');
     }
   }
@@ -115,7 +114,6 @@ export class ExchangeClient implements ExchangeInterface {
     try {
       return await this.futuresExchangeWatcher.watchBalance();
     } catch (error) {
-      console.log(error);
       throw error;
     }
   }

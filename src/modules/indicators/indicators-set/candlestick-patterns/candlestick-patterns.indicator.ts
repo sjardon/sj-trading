@@ -144,7 +144,6 @@ export class CandlestickPatternsExecutor implements IndicatorExecutorInterface {
 
       return patternFound;
     } catch (error) {
-      console.log(error);
       return false;
     }
   }
