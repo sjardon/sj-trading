@@ -131,6 +131,7 @@ export class OrdersService {
         stopLoss,
       });
     } catch (error) {
+      console.log(error);
       throw error;
     }
   }

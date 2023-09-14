@@ -35,7 +35,7 @@ export class ExchangeClient implements ExchangeInterface {
 
     this.futuresExchangeWatcher = new ccxt.pro.binanceusdm({ apiKey, secret });
     // { apiKey, secret }
-    this.futuresExchange = new ccxt.binance({ apiKey, secret });
+    this.futuresExchange = new ccxt.binanceusdm({ apiKey, secret });
     // { apiKey, secret }
 
     if (this.configService.get<string>('exchange.env') == 'testing') {
@@ -176,6 +176,7 @@ export class ExchangeClient implements ExchangeInterface {
       // }
 
       amount = this.amountToPrecision(symbol, amount);
+
       const createdOrder = await this.futuresExchange.createOrder(
         symbol,
         type,

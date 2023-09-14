@@ -98,7 +98,6 @@ export class TickTradingSessionHandler
         );
       }
     } catch (error) {
-      console.log(error);
       this.logger.log(`Error ${TickTradingSessionHandler.name}`);
     }
   }

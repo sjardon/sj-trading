@@ -152,7 +152,6 @@ export class CreateTradingSessionHandler
 
       return tradingSession;
     } catch (error) {
-      console.log(error);
       throw new InternalServerErrorException(
         'Internal error: Trading session not created',
       );

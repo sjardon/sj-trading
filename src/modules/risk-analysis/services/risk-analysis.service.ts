@@ -52,6 +52,6 @@ export class RiskAnalysisService {
     const currentPrice = await this.marketsService.getPrice(symbol);
     const { free: accountAmount } = currentBalance;
 
-    return (accountAmount * 0.02) / currentPrice;
+    return (accountAmount * 0.2) / currentPrice;
   }
 }
