@@ -80,8 +80,6 @@ export class OrdersService {
     return await this.create({
       symbol,
       side: OrderSide.BUY,
-      // positionSide: OrderPositionSide.LONG,
-      // side: OrderSide.SELL,
       positionSide: OrderPositionSide.SHORT,
       amount,
     });
@@ -122,7 +120,7 @@ export class OrdersService {
         `Order details: amount [${amount}] - stopLoss [${stopLoss}]`,
       );
 
-      return await this.exchangeClient.createOrder({
+      const newOrder = await this.exchangeClient.createOrder({
         symbol,
         type: mappedType,
         side: mappedSide,
@@ -130,6 +128,9 @@ export class OrdersService {
         amount,
         stopLoss,
       });
+
+      const orderToSave = this.ordersRepository.create(newOrder);
+      return await this.ordersRepository.save(orderToSave);
     } catch (error) {
       console.log(error);
       throw error;

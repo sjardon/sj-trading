@@ -56,13 +56,15 @@ export class TickTradingSessionHandler
       );
 
       // TODO: IMPORTANT FEATURE - add actionExecutorModule to handle differents actions and validate it.
-      // On this way I can create a lot of actions like MODIFY_STOP_LOSS, MODIFY_TAKE_PROFIT, etc.
-      // Also, operations will handle not only open and close orders, but a set of orders like take profits, stop loss, more than one open order and so on.
+      // On this way I would be able to create a lot of actions like MODIFY_STOP_LOSS, MODIFY_TAKE_PROFIT, etc.
+      // Also, operations would handle, not only open and close orders, but a set of orders like take profits, stop loss, more than one open order and so on.
 
       const actionToPerform: SignalAction = this.analyzersService.analyze(
         signals,
         this.lastOperation,
       );
+
+      // From here: ActionExecutorModule
 
       if (actionToPerform == SignalAction.NOTHING) {
         return;

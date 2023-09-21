@@ -3,43 +3,16 @@
   "stopLoss": 0.02,
   "takeProfit": 0.015,
   "indicators": [
-    {
-      "name": "SMA_5",
-      "configuration": {
-        "type": "SMA",
-        "lookback": 20,
-        "target": "high"
-      }
-    },
-    {
-      "name": "SMA_20",
-      "configuration": {
-        "type": "SMA",
-        "lookback": 20,
-        "target": "low"
-      }
-    },
-    {
-      "name": "SMA_200",
-      "configuration": {
-        "type": "SMA",
-        "lookback": 200
-      }
-    },
+    { "name": "SMA_5", "configuration": { "type": "SMA", "lookback": 10 } },
+    { "name": "SMA_20", "configuration": { "type": "SMA", "lookback": 20 } },
+    { "name": "SMA_200", "configuration": { "type": "SMA", "lookback": 200 } },
     {
       "name": "SMA_VOL_5",
-      "configuration": {
-        "type": "SMA",
-        "target": "volume",
-        "lookback": 5
-      }
+      "configuration": { "type": "SMA", "target": "volume", "lookback": 5 }
     },
     {
       "name": "ATR",
-      "configuration": {
-        "type": "ATR",
-        "lookback": 7
-      }
+      "configuration": { "type": "ATR", "lookback": 7 }
     },
     {
       "name": "CUR_SR",
@@ -47,14 +20,6 @@
         "type": "CURRENT_SUPPORT_RESISTANCE",
         "spread": 0.005,
         "lookback": 30
-      }
-    },
-    {
-      "name": "BREAKOUT",
-      "configuration": {
-        "type": "BREAKOUT",
-        "spread": 0.005,
-        "lookback": 100
       }
     },
     {
@@ -70,7 +35,7 @@
       "configuration": {
         "type": "SWING_CLASSIFICATION",
         "lookback": 30,
-        "threshold": 0.006
+        "threshold": 0.004
       }
     }
   ],
@@ -82,21 +47,16 @@
         "values": [
           {
             "type": "GT",
-            "values": [
-              "CS::volume",
-              {
-                "type": "MLP",
-                "values": ["IND::SMA_VOL_5", 1.2]
-              }
-            ]
+            "values": ["IND::CURRENT_LEVEL", 0]
           },
+          { "type": "GT", "values": ["IND::ATR", 130] },
           {
             "type": "EQ",
             "values": ["IND::SWING_CLASSIFICATION", "UP_SWING"]
           },
           {
-            "type": "EQ",
-            "values": ["IND::BREAKOUT_BULLISH", true]
+            "type": "GT",
+            "values": ["IND::SMA_5", "IND::SMA_20"]
           }
         ]
       }
@@ -122,7 +82,7 @@
                           "ORD::amount",
                           {
                             "type": "MLP",
-                            "values": [1, "IND::ATR"]
+                            "values": [1.5, "IND::ATR"]
                           }
                         ]
                       }
@@ -143,26 +103,26 @@
                           "ORD::amount",
                           {
                             "type": "MLP",
-                            "values": [2, "IND::ATR"]
+                            "values": [2.5, "IND::ATR"]
                           }
                         ]
                       }
                     ]
-                  },
-                  {
-                    "type": "OR",
-                    "values": [
-                      {
-                        "type": "EQ",
-                        "values": ["IND::SWING_CLASSIFICATION", "DOWN_SWING"]
-                      },
-                      {
-                        "type": "GT",
-                        "values": ["IND::CURRENT_LEVEL", 0]
-                      }
-                    ]
                   }
                 ]
+              }
+            ]
+          },
+          {
+            "type": "OR",
+            "values": [
+              {
+                "type": "EQ",
+                "values": ["IND::SWING_CLASSIFICATION", "DOWN_SWING"]
+              },
+              {
+                "type": "GT",
+                "values": ["IND::SMA_20", "IND::SMA_5"]
               }
             ]
           }
@@ -176,21 +136,16 @@
         "values": [
           {
             "type": "GT",
-            "values": [
-              "CS::volume",
-              {
-                "type": "MLP",
-                "values": ["IND::SMA_VOL_5", 1.2]
-              }
-            ]
+            "values": ["IND::CURRENT_LEVEL", 0]
           },
+          { "type": "GT", "values": ["IND::ATR", 130] },
           {
             "type": "EQ",
             "values": ["IND::SWING_CLASSIFICATION", "DOWN_SWING"]
           },
           {
-            "type": "EQ",
-            "values": ["IND::BREAKOUT_BEARISH", true]
+            "type": "GT",
+            "values": ["IND::SMA_20", "IND::SMA_5"]
           }
         ]
       }
@@ -198,22 +153,48 @@
     {
       "action": "CLOSE_SHORT",
       "operation": {
-        "type": "OR",
+        "type": "AND",
         "values": [
           {
-            "type": "AND",
+            "type": "OR",
             "values": [
               {
-                "type": "GT_EQ",
+                "type": "AND",
                 "values": [
-                  "CS::close",
                   {
-                    "type": "ADD",
+                    "type": "GT_EQ",
                     "values": [
-                      "ORD::amount",
+                      "CS::close",
                       {
-                        "type": "MLP",
-                        "values": [1, "IND::ATR"]
+                        "type": "ADD",
+                        "values": [
+                          "ORD::amount",
+                          {
+                            "type": "MLP",
+                            "values": [1.5, "IND::ATR"]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "AND",
+                "values": [
+                  {
+                    "type": "LT_EQ",
+                    "values": [
+                      "CS::close",
+                      {
+                        "type": "SUB",
+                        "values": [
+                          "ORD::amount",
+                          {
+                            "type": "MLP",
+                            "values": [2.5, "IND::ATR"]
+                          }
+                        ]
                       }
                     ]
                   }
@@ -222,36 +203,15 @@
             ]
           },
           {
-            "type": "AND",
+            "type": "OR",
             "values": [
               {
-                "type": "LT_EQ",
-                "values": [
-                  "CS::close",
-                  {
-                    "type": "SUB",
-                    "values": [
-                      "ORD::amount",
-                      {
-                        "type": "MLP",
-                        "values": [2, "IND::ATR"]
-                      }
-                    ]
-                  }
-                ]
+                "type": "EQ",
+                "values": ["IND::SWING_CLASSIFICATION", "UP_SWING"]
               },
               {
-                "type": "OR",
-                "values": [
-                  {
-                    "type": "EQ",
-                    "values": ["IND::SWING_CLASSIFICATION", "UP_SWING"]
-                  },
-                  {
-                    "type": "GT",
-                    "values": ["IND::CURRENT_LEVEL", 0]
-                  }
-                ]
+                "type": "GT",
+                "values": ["IND::SMA_5", "IND::SMA_20"]
               }
             ]
           }
